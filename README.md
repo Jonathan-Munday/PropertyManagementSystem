@@ -1,72 +1,69 @@
-```mermaid
 classDiagram
     direction TB
 
-    package domain {
-        class Agent {
-            -agentId: String
-            -name: String
-            -licenseNo: String
-            -agencyName: String
-        }
-
-        class Property {
-            -propertyId: String
-            -address: String
-            -description: String
-            -rentalAmount: double
-            -isAvailable: boolean
-        }
-
-        class Tenant {
-            -tenantId: String
-            -name: String
-            -email: String
-            -phone: String
-        }
-
-        class Lease {
-            -leaseId: String
-            -startDate: LocalDate
-            -endDate: LocalDate
-            -monthlyRent: double
-            -status: String
-        }
-
-        class MaintenanceRequest {
-            -requestId: String
-            -description: String
-            -reportedDate: LocalDate
-            -status: String
-        }
-
-        class Payment {
-            -paymentId: String
-            -amount: double
-            -paymentDate: LocalDate
-            -method: String
-        }
+    %% Domain Entities
+    class Agent {
+        -agentId: String
+        -name: String
+        -licenseNo: String
+        -agencyName: String
     }
 
-    package repository {
-        class IRepository~T, ID~ {
-            <<interface>>
-            +create(T): T
-            +read(ID): T
-            +update(T): T
-            +delete(ID): boolean
-        }
+    class Property {
+        -propertyId: String
+        -address: String
+        -description: String
+        -rentalAmount: double
+        -isAvailable: boolean
+    }
 
-        class IPropertyRepository {
-            <<interface>>
-            +findAvailable(): List~Property~
-            +getAll(): List~Property~
-        }
+    class Tenant {
+        -tenantId: String
+        -name: String
+        -email: String
+        -phone: String
+    }
 
-        class PropertyRepositoryImpl {
-            -database: Set~Property~
-            +all CRUD + findAvailable()
-        }
+    class Lease {
+        -leaseId: String
+        -startDate: LocalDate
+        -endDate: LocalDate
+        -monthlyRent: double
+        -status: String
+    }
+
+    class MaintenanceRequest {
+        -requestId: String
+        -description: String
+        -reportedDate: LocalDate
+        -status: String
+    }
+
+    class Payment {
+        -paymentId: String
+        -amount: double
+        -paymentDate: LocalDate
+        -method: String
+    }
+
+    %% Repository Layer
+    class IRepository~T, ID~ {
+        <<interface>>
+        +create(T) T
+        +read(ID) T
+        +update(T) T
+        +delete(ID) boolean
+    }
+
+    class IPropertyRepository {
+        <<interface>>
+        +findAvailable() List~Property~
+        +getAll() List~Property~
+    }
+
+    class PropertyRepositoryImpl {
+        -database: Set~Property~
+        +all CRUD + findAvailable()
     }
 
     %% Relationships and Multiplicity
@@ -79,4 +76,3 @@ classDiagram
     %% Repository Inheritance
     IPropertyRepository --|> IRepository
     PropertyRepositoryImpl ..|> IPropertyRepository
-```
