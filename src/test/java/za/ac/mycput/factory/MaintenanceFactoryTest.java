@@ -20,12 +20,11 @@ public class MaintenanceFactoryTest {
     public void testcreateMaintenanceSuccess(){
         Maintenance maintenance = MaintenanceFactory.createMaintenance("R001","Broken geyser","Open", LocalDate.now(),700);
         assertNotNull(maintenance);
-        System.out.println(maintenance);
     }
     @Test
     public void testcreateMaintenanceFailure(){
         Maintenance maintenance = MaintenanceFactory.createMaintenance("","","",null,-100);
         assertNull(maintenance);
     }
-
+    
 }
