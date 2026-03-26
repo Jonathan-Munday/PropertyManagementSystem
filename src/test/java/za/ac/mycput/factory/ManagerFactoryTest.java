@@ -1,5 +1,12 @@
 package za.ac.mycput.factory;
 
+/*
+  ManagerFactoryTest.java
+  Entity for the Manager
+  Author: Anas Pansari (230195342)
+  Date: 25th March 2026
+ */
+
 import za.ac.mycput.domain.Manager;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

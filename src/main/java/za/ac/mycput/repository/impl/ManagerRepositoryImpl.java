@@ -1,5 +1,12 @@
 package za.ac.mycput.repository.impl;
 
+/*
+  ManagerRepositoryImpl.java
+  Entity for the Manager
+  Author: Anas Pansari (230195342)
+  Date: 25th March 2026
+ */
+
 import za.ac.mycput.domain.Manager;
 import za.ac.mycput.repository.IManagerRepository;
 
