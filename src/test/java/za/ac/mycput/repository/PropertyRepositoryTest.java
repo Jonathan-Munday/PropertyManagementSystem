@@ -1,3 +1,4 @@
+
 /*
  * PropertyRepositoryTest.java
  * TDD test class for PropertyRepositoryImpl.
@@ -14,7 +15,6 @@ import za.ac.mycput.domain.Property;
 import za.ac.mycput.factory.PropertyFactory;
 import za.ac.mycput.repository.impl.PropertyRepositoryImpl;
 
-import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class PropertyRepositoryTest {
