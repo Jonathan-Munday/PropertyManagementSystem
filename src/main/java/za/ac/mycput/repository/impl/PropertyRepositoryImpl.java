@@ -11,33 +11,31 @@ package za.ac.mycput.repository.impl;
 
 import za.ac.mycput.domain.Property;
 import za.ac.mycput.repository.IPropertyRepository;
-
 import java.util.*;
-
 
 public class PropertyRepositoryImpl implements IPropertyRepository {
 
-    /** Simulated database. */
+    private static PropertyRepositoryImpl repository = null; // Singleton instance
     private final Set<Property> database = new HashSet<>();
 
-    // ---------------------------------------------------------------
-    // IRepository<Property, String> implementation
-    // ---------------------------------------------------------------
+    // Private constructor - prevents external instantiation [cite: 28]
+    private PropertyRepositoryImpl() {}
 
-    /**
-     * {@inheritDoc}
-     * <p>Rejects duplicates (same {@code propertyId}).</p>
-     */
+    // Public static method to provide the single instance [cite: 92, 98]
+    public static PropertyRepositoryImpl getRepository() {
+        if (repository == null) {
+            repository = new PropertyRepositoryImpl();
+        }
+        return repository;
+    }
+
     @Override
     public Property create(Property property) {
         if (property == null) return null;
-        boolean added = database.add(property);   // false if already present
+        boolean added = database.add(property);
         return added ? property : null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Property read(String propertyId) {
         if (propertyId == null) return null;
@@ -47,50 +45,34 @@ public class PropertyRepositoryImpl implements IPropertyRepository {
                 .orElse(null);
     }
 
-    /**
-     * {@inheritDoc}
-     * <p>Removes the old record and inserts the updated one.</p>
-     */
     @Override
     public Property update(Property property) {
         if (property == null) return null;
-        boolean removed = database.removeIf(
-                p -> property.getPropertyId().equals(p.getPropertyId()));
-        if (!removed) return null;          // nothing to update
-        database.add(property);
-        return property;
+        if (read(property.getPropertyId()) != null) {
+            database.removeIf(p -> p.getPropertyId().equals(p.getPropertyId()));
+            database.add(property);
+            return property;
+        }
+        return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean delete(String propertyId) {
         if (propertyId == null) return false;
         return database.removeIf(p -> propertyId.equals(p.getPropertyId()));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public List<Property> getAll() {
-        return Collections.unmodifiableList(new ArrayList<>(database));
+        return new ArrayList<>(database);
     }
 
-    // ---------------------------------------------------------------
-    // IPropertyRepository-specific queries
-    // ---------------------------------------------------------------
-
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public List<Property> findAvailable() {
         List<Property> result = new ArrayList<>();
         for (Property p : database) {
             if (p.isAvailable()) result.add(p);
         }
-        return Collections.unmodifiableList(result);
+        return result;
     }
 }
