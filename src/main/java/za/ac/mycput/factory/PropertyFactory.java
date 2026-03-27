@@ -44,7 +44,6 @@ public class PropertyFactory {
                     .isAvailable(isAvailable)
                     .build();
         } catch (IllegalStateException e) {
-            System.err.println("PropertyFactory: could not create Property – " + e.getMessage());
             return null;
         }
     }
