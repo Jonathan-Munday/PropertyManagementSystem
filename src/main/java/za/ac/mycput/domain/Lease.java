@@ -1,5 +1,12 @@
 package za.ac.mycput.domain;
 
+/*
+* Lease.java
+* Lease for the tenant
+* Malik Muhammed (230388175)
+* 21/3/2026
+ */
+
 public class Lease {
     private String leaseId;
     private String propertyId;
