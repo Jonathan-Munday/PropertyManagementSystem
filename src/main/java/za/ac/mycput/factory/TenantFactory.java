@@ -17,8 +17,7 @@ public class TenantFactory {
                                       String phoneNumber) {
 
 
-        if (firstName == null || firstName.isEmpty() ||
-                lastName == null || lastName.isEmpty()) {
+        if (firstName == null || firstName.isEmpty()) {
             return null;
         }
 
