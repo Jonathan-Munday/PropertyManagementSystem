@@ -11,14 +11,16 @@ import java.util.Objects;
 
 public class Lease {
     private String leaseId;
-    private String tenantId;
-    private double amount;
+    private String propertyId;
+    private String tenantName;
+    private double monthlyRent;
 
     // Private constructor required for the Builder Pattern
     private Lease(Builder builder) {
         this.leaseId = builder.leaseId;
-        this.tenantId = builder.tenantId;
-        this.amount = builder.amount;
+        this.propertyId = builder.propertyId;
+        this.tenantName = builder.tenantName;
+        this.monthlyRent = builder.monthlyRent;
     }
 
     // Getters
@@ -26,12 +28,16 @@ public class Lease {
         return leaseId;
     }
 
-    public String getTenantId() {
-        return tenantId;
+    public String getPropertyId() {
+        return propertyId;
     }
 
-    public double getAmount() {
-        return amount;
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public double getMonthlyRent() {
+        return monthlyRent;
     }
 
     // equals() and hashCode() crucial for HashSet deduplication
@@ -52,37 +58,45 @@ public class Lease {
     public String toString() {
         return "Lease{" +
                 "leaseId='" + leaseId + '\'' +
-                ", tenantId='" + tenantId + '\'' +
-                ", amount=" + amount +
+                ", propertyId='" + propertyId + '\'' +
+                ", tenantName='" + tenantName + '\'' +
+                ", monthlyRent=" + monthlyRent +
                 '}';
     }
 
     // Static Inner Builder Class
     public static class Builder {
         private String leaseId;
-        private String tenantId;
-        private double amount;
+        private String propertyId;
+        private String tenantName;
+        private double monthlyRent;
 
         public Builder setLeaseId(String leaseId) {
             this.leaseId = leaseId;
             return this;
         }
 
-        public Builder setTenantId(String tenantId) {
-            this.tenantId = tenantId;
+        public Builder setPropertyId(String propertyId) {
+            this.propertyId = propertyId;
             return this;
         }
 
-        public Builder setAmount(double amount) {
-            this.amount = amount;
+        public Builder setTenantName(String tenantName) {
+            this.tenantName = tenantName;
+            return this;
+        }
+
+        public Builder setMonthlyRent(double monthlyRent) {
+            this.monthlyRent = monthlyRent;
             return this;
         }
 
         // Copy method for updating existing objects
         public Builder copy(Lease lease) {
             this.leaseId = lease.leaseId;
-            this.tenantId = lease.tenantId;
-            this.amount = lease.amount;
+            this.propertyId = lease.propertyId;
+            this.tenantName = lease.tenantName;
+            this.monthlyRent = lease.monthlyRent;
             return this;
         }
 
