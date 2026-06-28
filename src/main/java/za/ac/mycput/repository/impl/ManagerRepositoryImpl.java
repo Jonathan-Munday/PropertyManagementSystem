@@ -15,7 +15,20 @@ import java.util.List;
 
 public class ManagerRepositoryImpl implements IManagerRepository {
 
-    private List<Manager> managerList = new ArrayList<>();
+    private static ManagerRepositoryImpl repository = null;
+
+    private List<Manager>managerList;
+
+    public ManagerRepositoryImpl() {
+        managerList = new ArrayList<>();
+    }
+
+    public static ManagerRepositoryImpl getRepository() {
+        if (repository == null) {
+            repository = new ManagerRepositoryImpl();
+        }
+        return repository;
+    }
 
     @Override
      public Manager create(Manager manager) {
