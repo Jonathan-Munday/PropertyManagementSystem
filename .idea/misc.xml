@@ -1,16 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ExternalStorageConfigurationManager" enabled="true" />
-  <component name="MavenProjectsManager">
-    <option name="originalFiles">
-      <list>
-        <option value="$PROJECT_DIR$/pom.xml" />
-      </list>
-    </option>
-  </component>
-<<<<<<< HEAD
-  <component name="ProjectRootManager" version="2" project-jdk-name="25" project-jdk-type="JavaSDK" />
-=======
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_25" project-jdk-name="23" project-jdk-type="JavaSDK" />
->>>>>>> 455002ba2a25ef173fabdd3c73ef29a4002964d9
+<component name="ExternalStorageConfigurationManager" enabled="true"/>
+<component name="MavenProjectsManager">
+<option name="originalFiles">
+<list>
+<option value="$PROJECT_DIR$/pom.xml"/>
+</list>
+</option>
+</component>
+<component name="ProjectRootManager" version="2" project-jdk-name="25" project-jdk-type="JavaSDK"/>
 </project>
