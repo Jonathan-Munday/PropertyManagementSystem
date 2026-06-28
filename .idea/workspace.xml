@@ -5,12 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fce8b2e0-5ec5-472a-9715-d11d873720e6" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/main/java/za/ac/mycput/domain/Notification.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/encodings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/mycput/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/mycput/Main.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/mycput/domain/Property.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/mycput/domain/Property.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/mycput/factory/MaintenanceFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/mycput/factory/MaintenanceFactory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/mycput/factory/PaymentFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/mycput/factory/PaymentFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/mycput/factory/TenantFactory.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/mycput/factory/TenantFactory.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/za/ac/mycput/repository/IManagerRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/za/ac/mycput/repository/IManagerRepository.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/mycput/factory/TenantFactoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/mycput/factory/TenantFactoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/mycput/factory/MaintenanceFactoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/mycput/factory/MaintenanceFactoryTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/za/ac/mycput/factory/PaymentFactoryTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/za/ac/mycput/factory/PaymentFactoryTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,9 +29,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {}
-}]]></component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {}
+}</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
     &quot;url&quot;: &quot;https://github.com/Jonathan-Munday/PropertyManagementSystem&quot;,
@@ -46,37 +50,125 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;230166040&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/Users/jonathan/IdeaProjects/PropertyManagementSystem&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.Main.executor": "Run",
+    "JUnit.LeaseFactoryTest.executor": "Run",
+    "JUnit.MaintenanceFactoryTest.executor": "Run",
+    "JUnit.ManagerFactoryTest.executor": "Run",
+    "JUnit.ManagerFactoryTest.testCreateManagerFailure.executor": "Run",
+    "JUnit.ManagerFactoryTest.testCreateManagerSuccess.executor": "Run",
+    "JUnit.PaymentFactoryTest.executor": "Run",
+    "JUnit.TenantFactoryTest.executor": "Run",
+    "JUnit.TenantRepositoryTest.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "git-widget-placeholder": "230671942",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "/Users/jonathan/IdeaProjects/PropertyManagementSystem",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.lookFeel",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
-  <component name="RunManager">
+}]]></component>
+  <component name="RunManager" selected="JUnit.PaymentRepositoryTest">
+    <configuration name="LeaseFactoryTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="PropertyManagementSystem" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.mycput.factory.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.mycput.factory" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.mycput.factory.LeaseFactoryTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PaymentFactoryTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="PropertyManagementSystem" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.mycput.factory.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.mycput.factory" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.mycput.factory.PaymentFactoryTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="PaymentRepositoryTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="PropertyManagementSystem" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.mycput.repository.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.mycput.repository" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.mycput.repository.PaymentRepositoryTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TenantFactoryTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="PropertyManagementSystem" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.mycput.factory.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.mycput.factory" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.mycput.factory.TenantFactoryTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="TenantRepositoryTest" type="JUnit" factoryName="JUnit" temporary="true" nameIsGenerated="true">
+      <module name="PropertyManagementSystem" />
+      <extension name="coverage">
+        <pattern>
+          <option name="PATTERN" value="za.ac.mycput.repository.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="PACKAGE_NAME" value="za.ac.mycput.repository" />
+      <option name="MAIN_CLASS_NAME" value="za.ac.mycput.repository.TenantRepositoryTest" />
+      <option name="TEST_OBJECT" value="class" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="JetRunConfigurationType">
       <module name="PropertyManagementSystem.test" />
       <method v="2">
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="PropertyManagementSystem" />
-      <option name="filePath" />
-      <method v="2" />
-    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JUnit.PaymentRepositoryTest" />
+        <item itemvalue="JUnit.PaymentFactoryTest" />
+        <item itemvalue="JUnit.LeaseFactoryTest" />
+        <item itemvalue="JUnit.TenantRepositoryTest" />
+        <item itemvalue="JUnit.TenantFactoryTest" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>

@@ -9,6 +9,7 @@ package za.ac.mycput.factory;
 
 import org.junit.jupiter.api.Test;
 import za.ac.mycput.domain.Maintenance;
+import za.ac.mycput.domain.Vendor;
 
 import java.time.LocalDate;
 
