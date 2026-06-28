@@ -1,8 +1,10 @@
 package za.ac.mycput.factory;
 
 import za.ac.mycput.domain.Maintenance;
+import za.ac.mycput.domain.Vendor;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /*
 * MaintenanceFactory.java
@@ -52,7 +54,7 @@ public class MaintenanceFactory {
                 .setVendorId(generatedVendorId)
                 .setCompanyName(companyName)
                 .setContactNumber(contactNumber)
-                .setSpeciality(speciality)
+                .setSpecialty(speciality)
                 .build();
     }
 

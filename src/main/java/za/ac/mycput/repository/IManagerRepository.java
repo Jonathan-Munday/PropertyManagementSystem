@@ -11,4 +11,3 @@ import za.ac.mycput.domain.Manager;
 
 public interface IManagerRepository extends IRepository<Manager,String> {
 }
-manager save(Manager manager)

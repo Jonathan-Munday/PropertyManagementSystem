@@ -1,13 +1,11 @@
 package za.ac.mycput;
 
-
 public class Main {
-    static void main() {
-        IO.println(String.format("Hello and welcome!"));
+    public static void main(String[] args) {
+        System.out.println("Hello and welcome!");
 
         for (int i = 1; i <= 5; i++) {
-
-            IO.println("i = " + i);
+            System.out.println("i = " + i);
         }
     }
 }
