@@ -1,22 +1,47 @@
+/*
+ * LeaseFactory.java
+ * Domain entity representing a rental property.
+ * Author : Malik Muhammed (230388175)
+ * Date   : 20 March 2026
+ */
+
 package za.ac.mycput.factory;
+/*
+ * LeaseFactory.java
+ * Factory for Lease and TermsAndConditions entities
+ * Malik Muhammed (230388175)
+ * 21/3/2026 (Updated: 28 June 2026)
+ */
 
 import za.ac.mycput.domain.Lease;
+import za.ac.mycput.domain.TermsAndConditions;
 
 public class LeaseFactory {
 
-    public static Lease buildLease(String leaseId, String tenantId, double amount) {
+    public static Lease createLease(String leaseId, String propertyId, String tenantName, double monthlyRent) {
 
-        // 1. Basic validation: If any crucial data is missing, return null
-        // Note: If you have a Helper class (e.g., Helper.isNullOrEmpty), you can use that here instead!
-        if (leaseId == null || leaseId.isEmpty() || tenantId == null || tenantId.isEmpty() || amount < 0) {
+        if (leaseId == null || leaseId.isEmpty() || propertyId == null || propertyId.isEmpty() ||
+                tenantName == null || tenantName.isEmpty() || monthlyRent < 0) {
             return null;
         }
 
-        // 2. Use the Builder to create and return the Lease object
         return new Lease.Builder()
                 .setLeaseId(leaseId)
-                .setTenantId(tenantId)
-                .setAmount(amount)
+                .setPropertyId(propertyId)
+                .setTenantName(tenantName)
+                .setMonthlyRent(monthlyRent)
+                .build();
+    }
+
+    public static TermsAndConditions createTermsAndConditions(String termsId, String leaseId, String description, boolean accepted) {
+        if (termsId == null || termsId.isEmpty() || leaseId == null || leaseId.isEmpty() || description == null || description.isEmpty()) {
+            return null;
+        }
+        return new TermsAndConditions.Builder()
+                .setTermsId(termsId)
+                .setLeaseId(leaseId)
+                .setDescription(description)
+                .setAccepted(accepted)
                 .build();
     }
 }
