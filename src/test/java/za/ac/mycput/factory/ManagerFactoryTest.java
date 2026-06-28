@@ -1,11 +1,11 @@
 package za.ac.mycput.factory;
-
+import za.ac.mycput.domain.Invoice;
 /*
   ManagerFactoryTest.java
   Entity for the Manager
   Author: Anas Pansari (230195342)
-  Date: 25th March 2026
- */
+  Date: 28th June 2026
+*/
 
 import za.ac.mycput.domain.Manager;
 import org.junit.jupiter.api.Test;
@@ -36,6 +36,30 @@ class ManagerFactoryTest {
 
     }
 
+    @Test
+    void testCreateInvoiceSuccess() {
+        Invoice invoice = ManagerFactory.createInvoice(
+                "28-06-2026",
+                "2500",
+                "EMP01"
+        );
+
+        assertNotNull(invoice);
+        assertNotNull(invoice.getInvoiceId());
+    }
+
+    @Test
+    void testCreateInvoiceFailure() {
+        Invoice invoice = ManagerFactory.createInvoice(
+                "",
+                "2500",
+                "EMP01"
+        );
+
+        assertNull(invoice);
+    }
+
 
 
 }
+
