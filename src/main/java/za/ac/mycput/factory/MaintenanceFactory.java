@@ -1,8 +1,10 @@
 package za.ac.mycput.factory;
 
 import za.ac.mycput.domain.Maintenance;
+import za.ac.mycput.domain.Vendor;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 /*
 * MaintenanceFactory.java
@@ -36,4 +38,25 @@ public class MaintenanceFactory {
                 .setCost(cost)
                 .build();
     }
+    public static Vendor createVendor(String companyName, String contactNumber, String speciality){
+        if (companyName == null || companyName.isEmpty()){
+            return null;
+        }
+        if (contactNumber == null || contactNumber.isEmpty()) {
+            return null;
+        }
+        if (speciality == null || speciality.isEmpty()) {
+            return null;
+        }
+        String generatedVendorId = "VND-" + UUID.randomUUID().toString().substring(0,8);
+
+        return new Vendor.Builder()
+                .setVendorId(generatedVendorId)
+                .setCompanyName(companyName)
+                .setContactNumber(contactNumber)
+                .setSpecialty(speciality)
+                .build();
+    }
+
+
 }

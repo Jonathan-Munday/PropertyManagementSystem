@@ -38,7 +38,7 @@ import static org.junit.jupiter.api.Assertions.*;
      @Test
      void testDelete() {
          repository.create(manager);
-         boolean deleted= repository.delete(manager.getManagerId());
+         boolean deleted = repository.delete(manager.getManagerId());
          assertTrue(deleted);
 
 

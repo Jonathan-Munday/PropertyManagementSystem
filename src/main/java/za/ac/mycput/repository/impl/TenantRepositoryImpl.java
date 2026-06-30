@@ -9,49 +9,67 @@ package za.ac.mycput.repository.impl;
 import za.ac.mycput.domain.Tenant;
 import za.ac.mycput.repository.ITenantRepository;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 public class TenantRepositoryImpl implements ITenantRepository {
 
-    private final Set<Tenant> tenants = new HashSet<>();
+
+    private static TenantRepositoryImpl repository = null;
+
+
+    private List<Tenant> tenantList;
+
+
+    private TenantRepositoryImpl() {
+        tenantList = new ArrayList<>();
+    }
+
+
+    public static TenantRepositoryImpl getRepository() {
+        if (repository == null) {
+            repository = new TenantRepositoryImpl();
+        }
+        return repository;
+    }
 
     @Override
     public Tenant create(Tenant tenant) {
-        tenants.add(tenant);
+        tenantList.add(tenant);
         return tenant;
     }
+
     @Override
     public Tenant read(String id) {
-        for (Tenant tenant : tenants){
-            if (tenant.getTenantId().equals(id)) {
-                return tenant;
-        }
+        return tenantList.stream()
+                .filter(t -> t.getTenantId().equals(id))
+                .findFirst()
+                .orElse(null);
     }
-        return null;
-}
-@Override
-public Tenant update(Tenant tenant) {
-        Tenant oldTenant = read(tenant.getTenantId());
-        if (oldTenant != null) {
-            tenants.remove(oldTenant);
-            tenants.add(tenant);
+
+    @Override
+    public Tenant update(Tenant tenant) {
+        Tenant existing = read(tenant.getTenantId());
+        if (existing != null) {
+            tenantList.remove(existing);
+            tenantList.add(tenant);
             return tenant;
         }
         return null;
     }
+
     @Override
     public boolean delete(String id) {
         Tenant tenant = read(id);
         if (tenant != null) {
-            tenants.remove(tenant);
+            tenantList.remove(tenant);
             return true;
         }
         return false;
     }
+
     @Override
     public List<Tenant> getAll() {
-        return (List<Tenant>) tenants;
+        return tenantList;
     }
 }

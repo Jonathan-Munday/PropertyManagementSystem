@@ -14,7 +14,6 @@ public class Tenant {
     private String phoneNumber;
 
 
-
     private Tenant(Builder builder) {
         this.tenantId = builder.tenantId;
         this.firstName = builder.firstName;
@@ -23,30 +22,24 @@ public class Tenant {
         this.phoneNumber = builder.phoneNumber;
     }
 
-    public String gettenantId()  { return tenantId; }
-    public String getfirstName() { return firstName; }
-    public String getlastName()  { return lastName; }
-    public String getemail()  { return email; }
-    public String getphoneNumber() { return phoneNumber; }
-
-    public String getFirstName() {
-        return null;
+    public String getTenantId() {
+        return tenantId;
     }
 
-    public String getTenantId() {
-        return null;
+    public String getFirstName() {
+        return firstName;
     }
 
     public String getLastName() {
-        return null;
+        return lastName;
     }
 
     public String getEmail() {
-        return null;
+        return email;
     }
 
     public String getPhoneNumber() {
-        return null;
+        return phoneNumber;
     }
 
     public static class Builder {
@@ -61,35 +54,41 @@ public class Tenant {
             return this;
         }
 
-        public Builder setFirstName(String firstName){
+        public Builder setFirstName(String firstName) {
             this.firstName = firstName;
             return this;
         }
-            public Builder setLastName(String lastName) {
-                this.lastName = lastName;
-                return this;
+
+        public Builder setLastName(String lastName) {
+            this.lastName = lastName;
+            return this;
         }
 
-            public Builder setEmail(String email) {
-                this.email = email;
-                return this;
+        public Builder setEmail(String email) {
+            this.email = email;
+            return this;
         }
-            public Builder setphoneNumber(String phoneNumber){
-                this.phoneNumber = phoneNumber;
-                return this;
-        }
-
-
-
-
-            public Tenant build() {
-               return new Tenant(this);
-
-            }
-
         public Builder setPhoneNumber(String phoneNumber) {
-            return null;
+            this.phoneNumber = phoneNumber;
+            return this;
+        }
+
+        public Tenant build() {
+            return new Tenant(this);
         }
     }
-}
 
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Tenant)) return false;
+        Tenant tenant = (Tenant) obj;
+        return tenantId.equals(tenant.tenantId);
+    }
+
+    @Override
+    public int hashCode() {
+        return tenantId.hashCode();
+    }
+}
