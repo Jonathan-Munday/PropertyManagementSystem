@@ -3,8 +3,8 @@ classDiagram
     direction TB
 
     %% Domain Entities
-    class Agent {
-        -agentId: String
+    class Manager {
+        -managerId: String
         -name: String
         -licenseNo: String
         -agencyName: String
@@ -20,9 +20,10 @@ classDiagram
 
     class Tenant {
         -tenantId: String
-        -name: String
+        -firstName: String
+        -lastName: String
         -email: String
-        -phone: String
+        -phoneNumber: String
     }
 
     class Lease {
@@ -33,8 +34,8 @@ classDiagram
         -status: String
     }
 
-    class MaintenanceRequest {
-        -requestId: String
+    class Maintenance {
+        -maintenanceId: String
         -description: String
         -reportedDate: LocalDate
         -status: String
@@ -54,22 +55,24 @@ classDiagram
         +read(ID) T
         +update(T) T
         +delete(ID) boolean
+        +getAll() List~T~
     }
 
     class IPropertyRepository {
         <<interface>>
         +findAvailable() List~Property~
-        +getAll() List~Property~
     }
 
     class PropertyRepositoryImpl {
         -database: Set~Property~
-        +all CRUD + findAvailable()
+        -instance: PropertyRepositoryImpl
+        +getRepository() PropertyRepositoryImpl$
+        +all CRUD methods()
     }
 
     %% Relationships and Multiplicity
-    Agent "1" -- "1..*" Property : manages
-    Property "1" -- "0..*" MaintenanceRequest : has
+    Manager "1" -- "1..*" Property : manages
+    Property "1" -- "0..*" Maintenance : has
     Property "1" -- "1..*" Lease : is associated with
     Tenant "1" -- "1..*" Lease : signs
     Lease "1" -- "1..*" Payment : records

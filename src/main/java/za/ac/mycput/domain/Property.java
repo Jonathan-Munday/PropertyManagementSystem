@@ -113,10 +113,10 @@ public class Property {
          * @throws IllegalStateException if propertyId or address is null/blank
          */
         public Property build() {
-            if (propertyId == null || propertyId.isBlank()) {
+            if (propertyId == null || propertyId.trim().isEmpty()) {
                 throw new IllegalStateException("propertyId is required");
             }
-            if (address == null || address.isBlank()) {
+            if (address == null || address.trim().isEmpty()) {
                 throw new IllegalStateException("address is required");
             }
             return new Property(this);
