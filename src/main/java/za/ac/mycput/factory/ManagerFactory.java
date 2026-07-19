@@ -1,5 +1,6 @@
 package za.ac.mycput.factory;
 
+import za.ac.mycput.domain.Invoice;
 import za.ac.mycput.domain.Manager;
 import java.util.UUID;
 /*
