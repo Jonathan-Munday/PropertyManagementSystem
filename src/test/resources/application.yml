@@ -5,5 +5,7 @@ portico:
       issuer: https://example.supabase.co/auth/v1
       jwk-set-uri: https://example.supabase.co/auth/v1/.well-known/jwks.json
       audience: authenticated
+    cors:
+      allowed-origins: http://localhost:5173
   datasource:
     allow-local: true
