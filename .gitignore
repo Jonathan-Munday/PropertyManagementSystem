@@ -38,3 +38,14 @@ build/
 ### Mac OS ###
 .DS_Store
 .idea/
+
+### Local launcher session. Process ids only. Never put secrets here. ###
+.portico/
+
+### Secrets ###
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example

@@ -1,0 +1,63 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: portico
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    hikari:
+      # Supabase session poolers allow a small number of clients. Stay under that limit.
+      maximum-pool-size: ${PORTICO_DB_POOL_SIZE:5}
+      minimum-idle: 0
+      pool-name: portico
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.default_schema: public
+      hibernate.jdbc.time_zone: UTC
+      hibernate.type.preferred_instant_jdbc_type: TIMESTAMP_WITH_TIMEZONE
+  flyway:
+    enabled: true
+    clean-disabled: true
+    default-schema: public
+    schemas: public
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  info:
+    env:
+      # Keep this false. /actuator/info is public and must not publish the environment.
+      enabled: false
+
+info:
+  app:
+    name: Portico
+    description: Property management API
+
+portico:
+  security:
+    jwt:
+      issuer: ${SUPABASE_JWT_ISSUER}
+      jwk-set-uri: ${SUPABASE_JWKS_URI}
+      audience: ${SUPABASE_JWT_AUDIENCE}
+    cors:
+      allowed-origins: ${PORTICO_CORS_ORIGINS:http://localhost:5173}
+  datasource:
+    allow-local: ${PORTICO_DATASOURCE_ALLOW_LOCAL:false}
+  tenancy:
+    local-access: false
+    local-user-id: 00000000-0000-0000-0000-000000000001
+    local-organisation-id: 00000000-0000-0000-0000-000000000010
+    local-organisation-name: Local portfolio

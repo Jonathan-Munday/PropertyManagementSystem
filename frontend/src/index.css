@@ -3,45 +3,96 @@
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Fraunces", ui-serif, Georgia, serif;
-  --color-ink: #142033;
-  --color-ink-soft: #24344c;
-  --color-brass: #b8884a;
-  --color-brass-deep: #7a5528;
-  --color-brass-light: #f3e6d0;
-  --color-paper: #f3efe7;
-  --color-card: #fffdf9;
-  --color-line: #e3dacb;
-  --color-muted: #6d6458;
-  --color-moss: #1e5c40;
-  --color-moss-soft: #e7f3ec;
-  --color-clay: #8d322b;
-  --color-clay-soft: #fbeceb;
-  --color-amber: #7a5208;
+
+  --color-navy: #16375e;
+  --color-navy-deep: #12243b;
+  --color-navy-soft: #e7eef5;
+  --color-teal: #087c82;
+  --color-teal-deep: #065e63;
+  --color-teal-soft: #e5f3f3;
+  --color-ivory: #f5f1e9;
+  --color-porcelain: #fffefc;
+  --color-sand: #e6dccb;
+  --color-mist: #8aa0b5;
+  --color-brass: #c28f4a;
+  --color-brass-deep: #8c6530;
+  --color-brass-light: #f6efe3;
+
+  --color-ink: #192b42;
+  --color-ink-soft: #3e5168;
+  --color-paper: #f5f1e9;
+  --color-card: #fffefc;
+  --color-line: #e6dccb;
+  --color-muted: #657285;
+
+  --color-moss: #1b6b45;
+  --color-moss-soft: #e6f4ec;
+  --color-clay: #9b332c;
+  --color-clay-deep: #7f2a24;
+  --color-clay-soft: #fbecea;
+  --color-amber: #8a5a10;
   --color-amber-soft: #fbf3df;
-  --color-sea: #1a455c;
-  --color-sea-soft: #e6f1f6;
+  --color-sea: #1d4e89;
+  --color-sea-soft: #e8f0f8;
+
+  --shadow-card: 0 1px 1px rgb(18 36 59 / 0.04), 0 8px 20px rgb(18 36 59 / 0.035);
 }
 
-body {
-  margin: 0;
-  min-height: 100vh;
-  background: var(--color-paper);
-  color: var(--color-ink);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
+@utility panel {
+  border-radius: 0.75rem;
+  border: 1px solid var(--color-line);
+  background-color: var(--color-card);
+  box-shadow: var(--shadow-card);
 }
 
-#root {
-  min-height: 100vh;
+@layer base {
+  html {
+    overflow-x: hidden;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--color-ivory);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+
+  .font-display {
+    color: var(--color-navy);
+    font-weight: 560;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: var(--color-teal-soft);
+    color: var(--color-navy-deep);
+  }
+
+  input[type="date"],
+  input[type="search"] {
+    color-scheme: light;
+  }
 }
 
-::selection {
-  background: #e8d3b0;
-}
+@layer components {
+  .data-table thead th {
+    background: color-mix(in srgb, var(--color-ivory) 72%, white);
+    border-bottom: 1px solid var(--color-line);
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
 
-input[type="date"],
-input[type="search"] {
-  color-scheme: light;
+  .data-table tbody tr {
+    border-color: var(--color-line);
+  }
 }
 
 .num {

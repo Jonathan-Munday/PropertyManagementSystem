@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LayoutGrid, List, Pencil, Plus, Trash2 } from "lucide-react";
 import { z } from "zod";
-import { clsx } from "clsx";
 import { usePortfolio } from "../context/PortfolioContext.tsx";
 import { formatZar, parseMoney } from "../lib/format.ts";
 import { createId } from "../lib/ids.ts";
@@ -12,7 +11,7 @@ import { PageIntro } from "../components/layout/PageIntro.tsx";
 import { Button } from "../components/ui/Button.tsx";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog.tsx";
 import { EmptyState } from "../components/ui/EmptyState.tsx";
-import { controlClass, Field, textareaClass } from "../components/ui/Field.tsx";
+import { choiceClass, controlClass, Field, segmentClass, textareaClass } from "../components/ui/Field.tsx";
 import { FilterChip } from "../components/ui/FilterChip.tsx";
 import { Modal } from "../components/ui/Modal.tsx";
 import { SearchField } from "../components/ui/SearchField.tsx";
@@ -89,10 +88,7 @@ export function PropertiesPage() {
             type="button"
             aria-pressed={view === "table"}
             onClick={() => setView("table")}
-            className={clsx(
-              "inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-xs font-medium",
-              view === "table" ? "bg-ink text-paper" : "text-muted",
-            )}
+            className={segmentClass(view === "table")}
           >
             <List size={14} /> Table
           </button>
@@ -100,10 +96,7 @@ export function PropertiesPage() {
             type="button"
             aria-pressed={view === "grid"}
             onClick={() => setView("grid")}
-            className={clsx(
-              "inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-xs font-medium",
-              view === "grid" ? "bg-ink text-paper" : "text-muted",
-            )}
+            className={segmentClass(view === "grid")}
           >
             <LayoutGrid size={14} /> Grid
           </button>
@@ -140,7 +133,7 @@ export function PropertiesPage() {
       ) : view === "grid" ? (
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {filtered.map((property) => (
-            <article key={property.propertyId} className="flex flex-col rounded-2xl border border-line bg-card p-5">
+            <article key={property.propertyId} className="flex flex-col panel p-5">
               <div className="flex items-start justify-between gap-3">
                 <p className="text-xs text-muted">{property.propertyId}</p>
                 <StatusBadge status={property.available ? "Available" : "Occupied"} />
@@ -163,9 +156,9 @@ export function PropertiesPage() {
           ))}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-line bg-card">
+        <div className="overflow-hidden panel">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[760px] text-left text-sm">
+            <table className="data-table w-full min-w-[760px] text-left text-sm">
               <thead className="text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Address</th>
@@ -293,10 +286,7 @@ function PropertyForm({
           {(["available", "occupied"] as const).map((option) => (
             <label
               key={option}
-              className={clsx(
-                "cursor-pointer rounded-lg border px-3 py-2.5 text-center text-sm",
-                status === option ? "border-ink bg-ink text-paper" : "border-line bg-card text-ink",
-              )}
+              className={choiceClass(status === option)}
             >
               <input type="radio" className="sr-only" value={option} {...form.register("status")} />
               {option === "available" ? "Available" : "Occupied"}
@@ -304,7 +294,7 @@ function PropertyForm({
           ))}
         </div>
       </Field>
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex flex-wrap justify-end gap-2 pt-2">
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>

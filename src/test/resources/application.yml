@@ -1,0 +1,9 @@
+# Test defaults only. They do not apply when the API is started normally.
+portico:
+  security:
+    jwt:
+      issuer: https://example.supabase.co/auth/v1
+      jwk-set-uri: https://example.supabase.co/auth/v1/.well-known/jwks.json
+      audience: authenticated
+  datasource:
+    allow-local: true

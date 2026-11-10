@@ -100,9 +100,9 @@ export function PaymentsPage() {
       ) : filtered.length === 0 ? (
         <EmptyState title="No payments in this status" body="Choose another status to see the rest of the ledger." />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-line bg-card">
+        <div className="panel overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[800px] text-left text-sm">
+            <table className="data-table w-full min-w-[800px] text-left text-sm">
               <thead className="text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Date</th>
@@ -268,7 +268,7 @@ function PaymentForm({
           </select>
         </Field>
       </div>
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex flex-wrap justify-end gap-2 pt-2">
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>

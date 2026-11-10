@@ -1,0 +1,11 @@
+# Development bypass for a private PostgreSQL that is not Supabase.
+# DatasourceStartupGuard refuses this profile when the JDBC host is Supabase,
+# because the bootstrap below would insert a user that is not an auth.users row.
+spring:
+  config:
+    activate:
+      on-profile: local
+
+portico:
+  tenancy:
+    local-access: true

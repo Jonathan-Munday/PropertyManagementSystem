@@ -9,6 +9,7 @@ import {
 } from "react";
 import { demoPortfolio } from "../data/fallback.ts";
 import { removeById, upsert } from "../lib/collections.ts";
+import { leaseOccupies } from "../lib/format.ts";
 import {
   agentApi,
   leaseApi,
@@ -68,6 +69,13 @@ function valueOrEmpty<T>(result: PromiseSettledResult<T[]>) {
   return result.status === "fulfilled" ? result.value : [];
 }
 
+function applyOccupancy(properties: Property[], propertyId: string, leases: Lease[]) {
+  const occupied = leases.some((lease) => lease.propertyId === propertyId && leaseOccupies(lease));
+  return properties.map((property) =>
+    property.propertyId === propertyId ? { ...property, available: !occupied } : property,
+  );
+}
+
 async function fetchPortfolio(): Promise<PortfolioSnapshot> {
   const [properties, tenants, leases, payments, maintenance, managers, agents] = await Promise.allSettled([
     propertyApi.list(),
@@ -80,6 +88,9 @@ async function fetchPortfolio(): Promise<PortfolioSnapshot> {
   ]);
 
   if (properties.status === "rejected") {
+    if (import.meta.env.VITE_DEMO_MODE === "false") {
+      throw properties.reason;
+    }
     return { source: "demo", ...structuredClone(demoPortfolio) };
   }
 
@@ -95,7 +106,24 @@ async function fetchPortfolio(): Promise<PortfolioSnapshot> {
   };
 }
 
-export function PortfolioProvider({ children }: { children: ReactNode }) {
+const emptyPortfolio: PortfolioSnapshot = {
+  source: "api",
+  properties: [],
+  tenants: [],
+  leases: [],
+  payments: [],
+  maintenance: [],
+  managers: [],
+  agents: [],
+};
+
+export function PortfolioProvider({
+  organisationId,
+  children,
+}: {
+  organisationId: string | null;
+  children: ReactNode;
+}) {
   const [snapshot, setSnapshot] = useState<PortfolioSnapshot>({
     source: "demo",
     properties: [],
@@ -112,9 +140,17 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let cancelled = false;
+    setLoading(true);
+    setSnapshot(emptyPortfolio);
     fetchPortfolio()
       .then((next) => {
         if (!cancelled) setSnapshot(next);
+      })
+      .catch((error: unknown) => {
+        if (!cancelled) {
+          setSnapshot(emptyPortfolio);
+          setNotice(toErrorMessage(error));
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -122,7 +158,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [organisationId]);
 
   useEffect(() => {
     if (!notice) return;
@@ -140,6 +176,8 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
       }
       setSnapshot(next);
       setNotice(next.source === "api" ? "Connected to the property API." : "Still unable to reach the property API.");
+    } catch (error) {
+      setNotice(toErrorMessage(error));
     } finally {
       setRefreshing(false);
     }
@@ -255,10 +293,14 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
   const saveLease = useCallback(
     async (lease: Lease, mode: SaveMode) => {
       const commit = (saved: Lease) =>
-        setSnapshot((current) => ({
-          ...current,
-          leases: upsert(current.leases, saved, (item) => item.leaseId),
-        }));
+        setSnapshot((current) => {
+          const nextLeases = upsert(current.leases, saved, (item) => item.leaseId);
+          return {
+            ...current,
+            leases: nextLeases,
+            properties: applyOccupancy(current.properties, saved.propertyId, nextLeases),
+          };
+        });
       if (snapshot.source === "demo") {
         commit(lease);
         setNotice("Lease saved.");
@@ -270,8 +312,7 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
           ...lease,
           ...saved,
           leaseId: saved.leaseId || lease.leaseId,
-          startDate: saved.startDate || lease.startDate,
-          endDate: saved.endDate || lease.endDate,
+          tenantId: saved.tenantId || lease.tenantId,
         });
         setNotice("Lease saved.");
         return true;
@@ -286,10 +327,17 @@ export function PortfolioProvider({ children }: { children: ReactNode }) {
   const deleteLease = useCallback(
     async (leaseId: string) => {
       const commit = () =>
-        setSnapshot((current) => ({
-          ...current,
-          leases: removeById(current.leases, leaseId, (item) => item.leaseId),
-        }));
+        setSnapshot((current) => {
+          const removed = current.leases.find((item) => item.leaseId === leaseId);
+          const nextLeases = removeById(current.leases, leaseId, (item) => item.leaseId);
+          return {
+            ...current,
+            leases: nextLeases,
+            properties: removed
+              ? applyOccupancy(current.properties, removed.propertyId, nextLeases)
+              : current.properties,
+          };
+        });
       if (snapshot.source === "demo") {
         commit();
         setNotice("Lease removed.");

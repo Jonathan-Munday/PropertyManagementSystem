@@ -8,9 +8,11 @@ const tones: Record<string, string> = {
   IN_PROGRESS: "bg-amber-soft text-amber",
   RESOLVED: "bg-moss-soft text-moss",
   Available: "bg-moss-soft text-moss",
-  Occupied: "bg-brass-light text-brass-deep",
+  Occupied: "bg-navy-soft text-navy",
   Active: "bg-moss-soft text-moss",
   Ended: "border border-line bg-paper text-muted",
+  Upcoming: "bg-sea-soft text-sea",
+  "Needs dates": "bg-amber-soft text-amber",
 };
 
 const labels: Record<string, string> = {

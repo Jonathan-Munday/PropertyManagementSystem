@@ -1,4 +1,6 @@
 import axios from "axios";
+import { toLeaseRequest } from "../lib/leaseRecord.ts";
+import { supabase } from "../lib/supabase.ts";
 import type {
   Agent,
   Lease,
@@ -12,29 +14,77 @@ import type {
 } from "../types/index.ts";
 
 /**
- * HTTP client for the Property Management System.
- *
- * Default base URL: http://localhost:8080/api
- * Override with VITE_API_BASE_URL (use /api to go through the Vite proxy).
- *
- * Collection routes follow the domain controllers:
- *   /property  /tenant  /lease  /payment  /maintenance  /manager  /agent
+ * Portfolio routes live under /api. Account routes are /api/v1 and already
+ * include the /v1 prefix. A base of http://localhost:8080/api/v1 is accepted
+ * and normalised so those paths are not doubled.
  */
-export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8080/api";
+function resolveApiBase(configured: string | undefined) {
+  const raw = (configured?.trim() || "http://localhost:8080/api").replace(/\/+$/, "");
+  return raw.endsWith("/api/v1") ? raw.slice(0, -3) : raw;
+}
+
+export const API_BASE_URL = resolveApiBase(import.meta.env.VITE_API_BASE_URL);
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 1800,
+  timeout: 20000,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
   },
 });
 
+type AuthBinding = {
+  token: () => Promise<string | null>;
+  organisationId: () => string | null;
+};
+
+let authBinding: AuthBinding = {
+  token: async () => null,
+  organisationId: () => null,
+};
+
+export function bindApiAuth(binding: AuthBinding) {
+  authBinding = binding;
+}
+
+api.interceptors.request.use(async (config) => {
+  const token = await authBinding.token();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  const organisationId = authBinding.organisationId();
+  if (organisationId) {
+    config.headers["X-Organisation-Id"] = organisationId;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const config = error?.config as { _retry?: boolean; headers?: { Authorization?: string } } | undefined;
+    if (!axios.isAxiosError(error) || error.response?.status !== 401 || !config || config._retry || !supabase) {
+      return Promise.reject(error);
+    }
+    config._retry = true;
+    const { data, error: refreshError } = await supabase.auth.refreshSession();
+    if (refreshError || !data.session) {
+      return Promise.reject(error);
+    }
+    config.headers = config.headers ?? {};
+    config.headers.Authorization = `Bearer ${data.session.access_token}`;
+    return api.request(config);
+  },
+);
+
 export function toErrorMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
     if (error.code === "ECONNABORTED") return "The property API took too long to respond.";
-    if (!error.response) return "The property API at localhost:8080 is unreachable.";
+    if (!error.response) return "The property service is unreachable.";
+    const body = asRecord(error.response.data);
+    const message = body ? readString(body, "message") : "";
+    if (message) return message;
     return `The property API returned status ${error.response.status}.`;
   }
   return "The change could not be saved.";
@@ -168,6 +218,7 @@ function normalizeLease(record: Record<string, unknown>): Lease | null {
   return {
     leaseId,
     propertyId: readString(record, "propertyId"),
+    tenantId: readString(record, "tenantId") || undefined,
     tenantName: readString(record, "tenantName", "tenant"),
     monthlyRent: readNumber(record, "monthlyRent", "rentalAmount", "amount"),
     startDate: readDate(record.startDate),
@@ -242,14 +293,7 @@ function serializeTenant(tenant: Tenant) {
 }
 
 function serializeLease(lease: Lease) {
-  return {
-    leaseId: lease.leaseId,
-    propertyId: lease.propertyId,
-    tenantName: lease.tenantName,
-    monthlyRent: lease.monthlyRent,
-    startDate: lease.startDate || undefined,
-    endDate: lease.endDate || undefined,
-  };
+  return toLeaseRequest(lease);
 }
 
 function serializePayment(payment: Payment) {

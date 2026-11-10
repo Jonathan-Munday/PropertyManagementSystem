@@ -90,9 +90,9 @@ export function TenantsPage() {
       ) : filtered.length === 0 ? (
         <EmptyState title="No matching tenants" body="Try a different name, email, or phone number." />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-line bg-card">
+        <div className="panel overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px] text-left text-sm">
+            <table className="data-table w-full min-w-[720px] text-left text-sm">
               <thead className="text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Name</th>
@@ -107,12 +107,12 @@ export function TenantsPage() {
                   <tr key={tenant.tenantId} className="hover:bg-paper/70">
                     <td className="px-4 py-3 font-medium">{fullName(tenant)}</td>
                     <td className="px-4 py-3">
-                      <a className="text-sea hover:underline" href={`mailto:${tenant.email}`}>
+                      <a className="font-medium text-teal-deep underline-offset-2 hover:text-teal hover:underline" href={`mailto:${tenant.email}`}>
                         {tenant.email}
                       </a>
                     </td>
                     <td className="px-4 py-3">
-                      <a className="hover:underline" href={`tel:${tenant.phoneNumber.replace(/\s/g, "")}`}>
+                      <a className="underline-offset-2 hover:text-teal-deep hover:underline" href={`tel:${tenant.phoneNumber.replace(/\s/g, "")}`}>
                         {tenant.phoneNumber}
                       </a>
                     </td>

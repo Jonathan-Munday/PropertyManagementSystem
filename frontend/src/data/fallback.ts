@@ -117,6 +117,7 @@ export const demoPortfolio: {
     {
       leaseId: "LSE-3001",
       propertyId: "PRP-1001",
+      tenantId: "TNT-2001",
       tenantName: "Amina Jacobs",
       monthlyRent: 12500,
       startDate: "2026-01-01",
@@ -125,6 +126,7 @@ export const demoPortfolio: {
     {
       leaseId: "LSE-3002",
       propertyId: "PRP-1002",
+      tenantId: "TNT-2002",
       tenantName: "Liam Petersen",
       monthlyRent: 7800,
       startDate: "2026-02-01",
@@ -133,6 +135,7 @@ export const demoPortfolio: {
     {
       leaseId: "LSE-3003",
       propertyId: "PRP-1004",
+      tenantId: "TNT-2003",
       tenantName: "Thandiwe Nkosi",
       monthlyRent: 9200,
       startDate: "2025-11-01",
@@ -141,6 +144,7 @@ export const demoPortfolio: {
     {
       leaseId: "LSE-3004",
       propertyId: "PRP-1005",
+      tenantId: "TNT-2004",
       tenantName: "Daniel October",
       monthlyRent: 16400,
       startDate: "2026-03-01",
@@ -149,6 +153,7 @@ export const demoPortfolio: {
     {
       leaseId: "LSE-3005",
       propertyId: "PRP-1007",
+      tenantId: "TNT-2005",
       tenantName: "Sara Williams",
       monthlyRent: 11000,
       startDate: "2026-04-01",

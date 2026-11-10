@@ -4,7 +4,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { z } from "zod";
 import { usePortfolio } from "../context/PortfolioContext.tsx";
-import { formatDate, formatZar, fullName, isLeaseActive, parseMoney, plusYears, todayIso } from "../lib/format.ts";
+import { formatDate, formatZar, fullName, leaseTermStatus, parseMoney, plusYears, todayIso } from "../lib/format.ts";
+import { buildLeaseRecord } from "../lib/leaseRecord.ts";
 import { createId } from "../lib/ids.ts";
 import type { Lease } from "../types/index.ts";
 import { PageIntro } from "../components/layout/PageIntro.tsx";
@@ -34,7 +35,12 @@ const leaseSchema = z
   });
 
 type LeaseFormValues = z.infer<typeof leaseSchema>;
-type LeaseFilter = "active" | "ended" | "all";
+type LeaseFilter = "active" | "ended" | "review" | "all";
+
+function openTerm(lease: Lease) {
+  const status = leaseTermStatus(lease);
+  return status === "Active" || status === "Upcoming";
+}
 
 export function LeasesPage() {
   const { leases, properties, tenants, saveLease, deleteLease } = usePortfolio();
@@ -47,15 +53,18 @@ export function LeasesPage() {
   const filtered = useMemo(() => {
     return [...leases]
       .filter((lease) => {
-        const active = isLeaseActive(lease.endDate);
-        if (filter === "active") return active;
-        if (filter === "ended") return !active;
+        const status = leaseTermStatus(lease);
+        if (filter === "active") return status === "Active" || status === "Upcoming";
+        if (filter === "ended") return status === "Ended";
+        if (filter === "review") return status === "Needs dates";
         return true;
       })
-      .sort((a, b) => b.startDate.localeCompare(a.startDate));
+      .sort((a, b) => (b.startDate || "").localeCompare(a.startDate || ""));
   }, [leases, filter]);
 
-  const activeCount = leases.filter((lease) => isLeaseActive(lease.endDate)).length;
+  const activeCount = leases.filter((lease) => openTerm(lease)).length;
+  const endedCount = leases.filter((lease) => leaseTermStatus(lease) === "Ended").length;
+  const reviewCount = leases.filter((lease) => leaseTermStatus(lease) === "Needs dates").length;
 
   async function confirmRemove() {
     if (!removing) return;
@@ -90,7 +99,10 @@ export function LeasesPage() {
           Active ({activeCount})
         </FilterChip>
         <FilterChip pressed={filter === "ended"} onClick={() => setFilter("ended")}>
-          Ended ({leases.length - activeCount})
+          Ended ({endedCount})
+        </FilterChip>
+        <FilterChip pressed={filter === "review"} onClick={() => setFilter("review")}>
+          Needs dates ({reviewCount})
         </FilterChip>
         <FilterChip pressed={filter === "all"} onClick={() => setFilter("all")}>
           All ({leases.length})
@@ -102,9 +114,9 @@ export function LeasesPage() {
       ) : filtered.length === 0 ? (
         <EmptyState title="Nothing in this view" body="Switch the filter to see active or ended agreements." />
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-line bg-card">
+        <div className="panel overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[840px] text-left text-sm">
+            <table className="data-table w-full min-w-[840px] text-left text-sm">
               <thead className="text-muted">
                 <tr>
                   <th className="px-4 py-3 font-medium">Lease</th>
@@ -119,7 +131,7 @@ export function LeasesPage() {
               <tbody className="divide-y divide-line">
                 {filtered.map((lease) => {
                   const property = properties.find((item) => item.propertyId === lease.propertyId);
-                  const active = isLeaseActive(lease.endDate);
+                  const status = leaseTermStatus(lease);
                   return (
                     <tr key={lease.leaseId} className="hover:bg-paper/70">
                       <td className="px-4 py-3 font-medium">{lease.leaseId}</td>
@@ -131,11 +143,11 @@ export function LeasesPage() {
                       <td className="px-4 py-3 text-muted">
                         {lease.startDate && lease.endDate
                           ? `${formatDate(lease.startDate)} – ${formatDate(lease.endDate)}`
-                          : "Open term"}
+                          : "Dates required"}
                       </td>
                       <td className="num px-4 py-3 text-right font-medium">{formatZar(lease.monthlyRent)}</td>
                       <td className="px-4 py-3">
-                        <StatusBadge status={active ? "Active" : "Ended"} />
+                        <StatusBadge status={status} />
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex justify-end gap-1">
@@ -205,16 +217,19 @@ function LeaseForm({
 }) {
   const { properties, tenants } = usePortfolio();
   const start = todayIso();
-  const matchedTenant = tenants.find((tenant) => fullName(tenant) === lease?.tenantName);
+  const knownTenant = tenants.find((tenant) => tenant.tenantId === lease?.tenantId);
+  const matchedByName = !lease?.tenantId
+    ? tenants.find((tenant) => fullName(tenant) === lease?.tenantName)
+    : undefined;
 
   const form = useForm<LeaseFormValues>({
     resolver: zodResolver(leaseSchema),
     defaultValues: {
       propertyId: lease?.propertyId ?? "",
-      tenantId: lease ? (matchedTenant?.tenantId ?? `name:${lease.tenantName}`) : "",
+      tenantId: lease?.tenantId || matchedByName?.tenantId || "",
       monthlyRent: lease ? String(lease.monthlyRent) : "",
-      startDate: lease?.startDate || start,
-      endDate: lease?.endDate || plusYears(start, 1),
+      startDate: lease ? (lease.startDate ?? "") : start,
+      endDate: lease ? (lease.endDate ?? "") : plusYears(start, 1),
     },
   });
 
@@ -231,47 +246,66 @@ function LeaseForm({
 
   const tenantChoices = useMemo(() => {
     const choices = tenants.map((tenant) => ({ value: tenant.tenantId, label: fullName(tenant) }));
-    if (lease && !matchedTenant) {
-      choices.unshift({ value: `name:${lease.tenantName}`, label: `${lease.tenantName} (not on file)` });
+    if (lease?.tenantId && !knownTenant) {
+      choices.unshift({
+        value: lease.tenantId,
+        label: lease.tenantName ? `${lease.tenantName} (not on file)` : lease.tenantId,
+      });
     }
     return choices;
-  }, [tenants, lease, matchedTenant]);
+  }, [tenants, lease, knownTenant]);
+
+  const selectedProperty = properties.find((property) => property.propertyId === lease?.propertyId);
 
   const onSubmit = form.handleSubmit(async (values) => {
-    let tenantName = "";
-    if (values.tenantId.startsWith("name:")) {
-      tenantName = values.tenantId.slice(5);
-    } else {
-      const tenant = tenants.find((item) => item.tenantId === values.tenantId);
-      if (!tenant) return;
-      tenantName = fullName(tenant);
+    const tenant = tenants.find((item) => item.tenantId === values.tenantId);
+    const tenantName = tenant ? fullName(tenant) : lease?.tenantName ?? "";
+    if (!tenant && !lease?.tenantId) {
+      form.setError("tenantId", { message: "Choose a tenant" });
+      return;
     }
-    const entity: Lease = {
+    const entity = buildLeaseRecord({
+      existing: lease,
       leaseId: lease?.leaseId ?? createId("LSE"),
       propertyId: values.propertyId,
+      tenantId: values.tenantId,
       tenantName,
       monthlyRent: parseMoney(values.monthlyRent),
       startDate: values.startDate,
       endDate: values.endDate,
-    };
+    });
+    if (!entity?.tenantId) {
+      form.setError("tenantId", { message: "Choose a tenant" });
+      return;
+    }
     const ok = await onSave(entity, lease ? "update" : "create");
     if (ok) onClose();
   });
 
   return (
     <form noValidate onSubmit={onSubmit} className="space-y-4">
-      <Field label="Property" htmlFor="lease-property" error={form.formState.errors.propertyId?.message}>
-        <select id="lease-property" className={controlClass} {...form.register("propertyId")}>
-          <option value="">Select a property</option>
-          {[...properties]
-            .sort((a, b) => a.address.localeCompare(b.address))
-            .map((property) => (
-              <option key={property.propertyId} value={property.propertyId}>
-                {property.address} · {property.available ? "available" : "occupied"}
-              </option>
-            ))}
-        </select>
-      </Field>
+      {lease ? (
+        <Field label="Property" htmlFor="lease-property">
+          <input type="hidden" id="lease-property" {...form.register("propertyId")} />
+          <p className="rounded-xl border border-line bg-paper px-3 py-2 text-sm">
+            {selectedProperty?.address ?? lease.propertyId}
+          </p>
+          <p className="mt-1 text-xs text-muted">A lease stays on the property it was opened against.</p>
+        </Field>
+      ) : (
+        <Field label="Property" htmlFor="lease-property" error={form.formState.errors.propertyId?.message}>
+          <select id="lease-property" className={controlClass} {...form.register("propertyId")}>
+            <option value="">Select a property</option>
+            {[...properties]
+              .sort((a, b) => a.address.localeCompare(b.address))
+              .map((property) => (
+                <option key={property.propertyId} value={property.propertyId}>
+                  {property.address} · {property.available ? "available" : "occupied"}
+                </option>
+              ))}
+          </select>
+        </Field>
+      )}
       <Field label="Tenant" htmlFor="lease-tenant" error={form.formState.errors.tenantId?.message}>
         <select id="lease-tenant" className={controlClass} {...form.register("tenantId")}>
           <option value="">Select a tenant</option>
@@ -293,7 +327,7 @@ function LeaseForm({
           <input id="lease-end" type="date" className={controlClass} {...form.register("endDate")} />
         </Field>
       </div>
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex flex-wrap justify-end gap-2 pt-2">
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>

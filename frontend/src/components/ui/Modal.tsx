@@ -43,7 +43,7 @@ export function Modal({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex items-end justify-center p-3 sm:items-center sm:p-6">
-      <div className="absolute inset-0 bg-ink/50" onClick={onClose} aria-hidden="true" />
+      <div className="absolute inset-0 bg-navy-deep/50" onClick={onClose} aria-hidden="true" />
       <div
         ref={panelRef}
         role="dialog"
@@ -51,23 +51,27 @@ export function Modal({
         aria-labelledby={titleId}
         tabIndex={-1}
         className={clsx(
-          "relative z-10 max-h-[92vh] w-full overflow-y-auto rounded-2xl border border-line bg-card shadow-xl outline-none",
+          "relative z-10 max-h-[min(92vh,100%)] w-full overflow-y-auto rounded-xl border border-line bg-card shadow-xl outline-none",
           widthClass,
         )}
       >
         <div className="flex items-start justify-between gap-4 border-b border-line px-5 py-4">
-          <div>
+          <div className="min-w-0">
             <h2 id={titleId} className="font-display text-2xl leading-tight">
               {title}
             </h2>
             {description ? <p className="mt-1 text-sm leading-6 text-muted">{description}</p> : null}
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close dialog">
+          <Button variant="ghost" size="icon" className="shrink-0" onClick={onClose} aria-label="Close dialog">
             <X size={18} />
           </Button>
         </div>
         {children ? <div className="px-5 py-4">{children}</div> : null}
-        {footer ? <div className="flex flex-wrap justify-end gap-2 border-t border-line px-5 py-4">{footer}</div> : null}
+        {footer ? (
+          <div className="flex flex-col-reverse gap-2 border-t border-line px-5 py-4 sm:flex-row sm:justify-end [&>button]:w-full sm:[&>button]:w-auto">
+            {footer}
+          </div>
+        ) : null}
       </div>
     </div>,
     document.body,

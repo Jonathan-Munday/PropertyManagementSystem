@@ -44,7 +44,21 @@ export function fullName(person: { firstName: string; lastName: string }) {
   return `${person.firstName} ${person.lastName}`.trim();
 }
 
-export function todayIso(date = new Date()) {
+/** Lease dates roll over at midnight in South Africa, matching the API clock. */
+export const LEASE_TIME_ZONE = "Africa/Johannesburg";
+
+export function businessToday(now = new Date()) {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: LEASE_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(now);
+  const value = (type: Intl.DateTimeFormatPartTypes) => Number(parts.find((part) => part.type === type)?.value);
+  return new Date(value("year"), value("month") - 1, value("day"));
+}
+
+export function todayIso(date = businessToday()) {
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const day = String(date.getDate()).padStart(2, "0");
   return `${date.getFullYear()}-${month}-${day}`;
@@ -66,9 +80,35 @@ export function parseMoney(value: string) {
   return Number(normalized);
 }
 
-export function isLeaseActive(endDate: string, today = new Date()) {
-  if (!endDate) return true;
-  const end = new Date(`${endDate.slice(0, 10)}T00:00:00`);
+export type LeaseTermStatus = "Active" | "Ended" | "Upcoming" | "Needs dates";
+
+function parseIsoDay(iso?: string) {
+  if (!iso) return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+  if (!match) return null;
+  const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/** Active only while today sits inside a complete term. Missing dates are not active. */
+export function leaseTermStatus(
+  lease: { startDate?: string; endDate?: string },
+  today = businessToday(),
+): LeaseTermStatus {
+  const start = parseIsoDay(lease.startDate);
+  const end = parseIsoDay(lease.endDate);
+  if (!start || !end) return "Needs dates";
   const day = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  return end >= day;
+  if (end < day) return "Ended";
+  if (start > day) return "Upcoming";
+  return "Active";
+}
+
+export function isLeaseActive(lease: { startDate?: string; endDate?: string }, today = businessToday()) {
+  return leaseTermStatus(lease, today) === "Active";
+}
+
+/** A legacy lease with no dates still reserves the property until the term is known to have ended. */
+export function leaseOccupies(lease: { startDate?: string; endDate?: string }, today = businessToday()) {
+  return leaseTermStatus(lease, today) !== "Ended";
 }

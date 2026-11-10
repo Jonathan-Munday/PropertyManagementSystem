@@ -21,16 +21,17 @@ export interface Tenant {
 
 /**
  * Matches za.ac.mycput.domain.Lease.
- * startDate and endDate are kept for the agreement screen. The Java entity
- * does not store them, so a strict controller will ignore the extra fields.
+ * Dates are ISO calendar dates (YYYY-MM-DD). An empty or missing date is a
+ * legacy row that still needs a term; it is not an open-ended active lease.
  */
 export interface Lease {
   leaseId: string;
   propertyId: string;
+  tenantId?: string;
   tenantName: string;
   monthlyRent: number;
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 /**

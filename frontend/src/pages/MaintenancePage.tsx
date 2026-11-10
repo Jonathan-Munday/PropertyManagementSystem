@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { z } from "zod";
-import { clsx } from "clsx";
 import { usePortfolio } from "../context/PortfolioContext.tsx";
 import { formatDate, formatZar, parseMoney, todayIso } from "../lib/format.ts";
 import { createId } from "../lib/ids.ts";
@@ -12,7 +11,7 @@ import { PageIntro } from "../components/layout/PageIntro.tsx";
 import { Button } from "../components/ui/Button.tsx";
 import { ConfirmDialog } from "../components/ui/ConfirmDialog.tsx";
 import { EmptyState } from "../components/ui/EmptyState.tsx";
-import { controlClass, Field, textareaClass } from "../components/ui/Field.tsx";
+import { choiceClass, controlClass, Field, textareaClass } from "../components/ui/Field.tsx";
 import { Modal } from "../components/ui/Modal.tsx";
 import { SearchField } from "../components/ui/SearchField.tsx";
 
@@ -99,7 +98,7 @@ export function MaintenancePage() {
               .sort((a, b) => b.reportedDate.localeCompare(a.reportedDate));
             const total = tickets.reduce((sum, ticket) => sum + ticket.cost, 0);
             return (
-              <section key={column.status} className="flex min-h-80 flex-col rounded-2xl border border-line bg-paper p-3">
+              <section key={column.status} className="flex min-h-40 flex-col rounded-xl border border-line bg-paper p-3 lg:min-h-80">
                 <header className="mb-3 flex items-start justify-between gap-3 px-1">
                   <div>
                     <h2 className="font-medium">{column.title}</h2>
@@ -111,9 +110,9 @@ export function MaintenancePage() {
                   </div>
                 </header>
                 <div className="flex flex-1 flex-col gap-3">
-                  {tickets.length === 0 ? <p className="px-1 text-sm text-muted">Nothing in this column.</p> : null}
+                  {tickets.length === 0 ? <p className="px-1 py-6 text-sm text-muted">No requests in this stage.</p> : null}
                   {tickets.map((ticket) => (
-                    <article key={ticket.requestId} className="rounded-xl border border-line bg-card p-4">
+                    <article key={ticket.requestId} className="panel p-4">
                       <p className="text-sm leading-6">{ticket.description}</p>
                       <p className="mt-3 text-xs text-muted">
                         {formatDate(ticket.reportedDate)} · <span className="num font-medium text-ink">{formatZar(ticket.cost)}</span>
@@ -250,7 +249,7 @@ function MaintenanceForm({
         <textarea id="maintenance-description" className={textareaClass} {...form.register("description")} />
       </Field>
       <Field label="Status" error={form.formState.errors.status?.message}>
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
           {(
             [
               ["OPEN", "Open"],
@@ -260,10 +259,7 @@ function MaintenanceForm({
           ).map(([value, label]) => (
             <label
               key={value}
-              className={clsx(
-                "cursor-pointer rounded-lg border px-2 py-2.5 text-center text-xs sm:text-sm",
-                status === value ? "border-ink bg-ink text-paper" : "border-line bg-card text-ink",
-              )}
+              className={choiceClass(status === value, true)}
             >
               <input type="radio" className="sr-only" value={value} {...form.register("status")} />
               {label}
@@ -279,7 +275,7 @@ function MaintenanceForm({
           <input id="maintenance-cost" inputMode="decimal" className={controlClass} {...form.register("cost")} />
         </Field>
       </div>
-      <div className="flex justify-end gap-2 pt-2">
+      <div className="flex flex-wrap justify-end gap-2 pt-2">
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
