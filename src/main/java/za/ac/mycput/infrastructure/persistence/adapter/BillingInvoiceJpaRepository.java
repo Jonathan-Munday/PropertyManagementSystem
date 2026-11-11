@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface BillingInvoiceJpaRepository extends JpaRepository<BillingInvoiceJpaEntity, UUID> {
 
     List<BillingInvoiceJpaEntity> findByOrganisationIdOrderByIssuedOnDesc(UUID organisationId);
+
+    void deleteByOrganisationId(UUID organisationId);
 }

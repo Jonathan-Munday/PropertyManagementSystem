@@ -110,6 +110,12 @@ public class SubscriptionApplicationService {
     }
 
     @Transactional
+    public void removeForDeletedOrganisation(UUID organisationId) {
+        invoices.deleteByOrganisationId(organisationId);
+        subscriptions.deleteByOrganisationId(organisationId);
+    }
+
+    @Transactional
     public SubscriptionResponse cancel() {
         persistence.bind();
         UUID organisationId = OrganisationContext.require().organisationId();

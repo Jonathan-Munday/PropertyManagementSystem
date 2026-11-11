@@ -49,6 +49,7 @@ public class AccountApplicationService {
     private final ScopedPersistence persistence;
     private final RolePermissionPolicy policy;
     private final SubscriptionAllowance subscriptions;
+    private final SubscriptionApplicationService subscriptionBilling;
     private final SecureRandom random = new SecureRandom();
 
     public AccountApplicationService(UserProfileJpaRepository profiles,
@@ -57,7 +58,8 @@ public class AccountApplicationService {
                                      OrganisationInvitationJpaRepository invitations,
                                      ScopedPersistence persistence,
                                      RolePermissionPolicy policy,
-                                     SubscriptionAllowance subscriptions) {
+                                     SubscriptionAllowance subscriptions,
+                                     SubscriptionApplicationService subscriptionBilling) {
         this.profiles = profiles;
         this.organisations = organisations;
         this.memberships = memberships;
@@ -65,6 +67,7 @@ public class AccountApplicationService {
         this.persistence = persistence;
         this.policy = policy;
         this.subscriptions = subscriptions;
+        this.subscriptionBilling = subscriptionBilling;
     }
 
     @Transactional
@@ -117,6 +120,8 @@ public class AccountApplicationService {
     public void deleteOrganisation(OrganisationScope scope) {
         requirePermission(scope, Permission.DELETE_ORGANISATION, "You do not have permission to delete this organisation");
         persistence.bind();
+        subscriptionBilling.removeForDeletedOrganisation(scope.organisationId());
+        persistence.flush();
         organisations.deleteById(scope.organisationId());
     }
 

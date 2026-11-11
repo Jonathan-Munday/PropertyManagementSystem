@@ -14,4 +14,6 @@ public interface OrganisationSubscriptionJpaRepository extends JpaRepository<Org
     boolean existsByOrganisationIdAndStatus(UUID organisationId, String status);
 
     boolean existsByOrganisationId(UUID organisationId);
+
+    void deleteByOrganisationId(UUID organisationId);
 }
