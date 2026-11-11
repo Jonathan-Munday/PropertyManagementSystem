@@ -9,6 +9,7 @@ import za.ac.mycput.domain.service.PropertyOccupancyPolicy;
 import za.ac.mycput.domain.service.RentCollectionPolicy;
 import za.ac.mycput.domain.service.RentalAmountPolicy;
 import za.ac.mycput.domain.service.RolePermissionPolicy;
+import za.ac.mycput.domain.service.SubscriptionLimitPolicy;
 
 import java.time.Clock;
 
@@ -48,5 +49,10 @@ public class DomainPolicyConfig {
     @Bean
     RolePermissionPolicy rolePermissionPolicy() {
         return new RolePermissionPolicy();
+    }
+
+    @Bean
+    SubscriptionLimitPolicy subscriptionLimitPolicy() {
+        return new SubscriptionLimitPolicy();
     }
 }

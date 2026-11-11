@@ -4,9 +4,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { z } from "zod";
 import { usePortfolio } from "../context/PortfolioContext.tsx";
+import { useAuth } from "../context/AuthContext.tsx";
 import { formatDate, formatZar, fullName, leaseTermStatus, parseMoney, plusYears, todayIso } from "../lib/format.ts";
 import { buildLeaseRecord } from "../lib/leaseRecord.ts";
 import { createId } from "../lib/ids.ts";
+import { canManageLeases, roleLabel } from "../lib/permissions.ts";
 import type { Lease } from "../types/index.ts";
 import { PageIntro } from "../components/layout/PageIntro.tsx";
 import { Button } from "../components/ui/Button.tsx";
@@ -44,6 +46,8 @@ function openTerm(lease: Lease) {
 
 export function LeasesPage() {
   const { leases, properties, tenants, saveLease, deleteLease } = usePortfolio();
+  const auth = useAuth();
+  const canWrite = canManageLeases(auth.selectedOrganisation?.role);
   const [filter, setFilter] = useState<LeaseFilter>("active");
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Lease | null>(null);
@@ -82,7 +86,7 @@ export function LeasesPage() {
             setEditing(null);
             setOpen(true);
           }}
-          disabled={properties.length === 0 || tenants.length === 0}
+          disabled={!canWrite || properties.length === 0 || tenants.length === 0}
         >
           <Plus size={16} /> New lease
         </Button>
@@ -91,6 +95,11 @@ export function LeasesPage() {
       {properties.length === 0 || tenants.length === 0 ? (
         <p className="mb-4 rounded-xl border border-line bg-card px-4 py-3 text-sm text-muted">
           Add at least one property and one tenant before creating a lease.
+        </p>
+      ) : null}
+      {!canWrite ? (
+        <p className="mb-4 rounded-xl border border-line bg-card px-4 py-3 text-sm leading-6 text-ink-soft">
+          Your {roleLabel(auth.selectedOrganisation?.role) || "current"} role can view leases. An owner, admin, or property manager creates and changes them.
         </p>
       ) : null}
 
@@ -155,6 +164,7 @@ export function LeasesPage() {
                             variant="ghost"
                             size="icon"
                             aria-label={`Edit lease ${lease.leaseId}`}
+                            disabled={!canWrite}
                             onClick={() => {
                               setEditing(lease);
                               setOpen(true);
@@ -166,6 +176,7 @@ export function LeasesPage() {
                             variant="ghost"
                             size="icon"
                             aria-label={`Remove lease ${lease.leaseId}`}
+                            disabled={!canWrite}
                             onClick={() => setRemoving(lease)}
                           >
                             <Trash2 size={16} />

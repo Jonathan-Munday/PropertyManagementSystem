@@ -8,6 +8,7 @@ import {
   type ReactNode,
 } from "react";
 import { demoPortfolio } from "../data/fallback.ts";
+import { allowsDemoFallback } from "../lib/demoMode.ts";
 import { removeById, upsert } from "../lib/collections.ts";
 import { leaseOccupies } from "../lib/format.ts";
 import {
@@ -88,7 +89,7 @@ async function fetchPortfolio(): Promise<PortfolioSnapshot> {
   ]);
 
   if (properties.status === "rejected") {
-    if (import.meta.env.VITE_DEMO_MODE === "false") {
+    if (!allowsDemoFallback(import.meta.env.PROD, import.meta.env.VITE_DEMO_MODE)) {
       throw properties.reason;
     }
     return { source: "demo", ...structuredClone(demoPortfolio) };

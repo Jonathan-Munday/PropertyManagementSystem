@@ -32,6 +32,12 @@ public class SubscriptionPlanJpaEntity {
     @Column(name = "interval_unit", length = 20, nullable = false)
     private String intervalUnit;
 
+    @Column(name = "max_properties", nullable = false)
+    private int maxProperties;
+
+    @Column(name = "max_users", nullable = false)
+    private int maxUsers;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -50,6 +56,10 @@ public class SubscriptionPlanJpaEntity {
     public void setCurrency(String currency) { this.currency = currency; }
     public String getIntervalUnit() { return intervalUnit; }
     public void setIntervalUnit(String intervalUnit) { this.intervalUnit = intervalUnit; }
+    public int getMaxProperties() { return maxProperties; }
+    public void setMaxProperties(int maxProperties) { this.maxProperties = maxProperties; }
+    public int getMaxUsers() { return maxUsers; }
+    public void setMaxUsers(int maxUsers) { this.maxUsers = maxUsers; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }

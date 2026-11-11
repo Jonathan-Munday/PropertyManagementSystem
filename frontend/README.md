@@ -17,3 +17,7 @@ VITE_DEMO_MODE=false
 ```
 
 New records use UUID identifiers. The API requires a bearer token whose `sub` is a member of an organisation, unless the API is started with the `local` profile. See `docs/database.md`.
+
+## Vercel
+
+Use this `frontend/` directory as the project root. `npm ci` then `npm run build` writes `dist`. `vercel.json` sends direct visits and refreshes to `index.html`. Set `VITE_SUPABASE_URL`, `VITE_SUPABASE_PUBLISHABLE_KEY`, `VITE_API_BASE_URL`, and `VITE_DEMO_MODE=false` in the Vercel project. Those values are public. The production bundle calls `VITE_API_BASE_URL` and does not use the Vite dev proxy. See [docs/deployment.md](../docs/deployment.md).

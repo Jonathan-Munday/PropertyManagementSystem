@@ -23,17 +23,20 @@ public class PropertyApplicationService {
     private final RentalAmountPolicy rentalAmounts;
     private final PropertyOccupancyPolicy occupancy;
     private final Clock clock;
+    private final SubscriptionAllowance subscriptions;
 
     public PropertyApplicationService(IPropertyRepository properties,
                                       ILeaseRepository leases,
                                       RentalAmountPolicy rentalAmounts,
                                       PropertyOccupancyPolicy occupancy,
-                                      Clock clock) {
+                                      Clock clock,
+                                      SubscriptionAllowance subscriptions) {
         this.properties = properties;
         this.leases = leases;
         this.rentalAmounts = rentalAmounts;
         this.occupancy = occupancy;
         this.clock = clock;
+        this.subscriptions = subscriptions;
     }
 
     @Transactional
@@ -51,6 +54,7 @@ public class PropertyApplicationService {
 
     @Transactional
     public Property create(PropertyCommand command) {
+        subscriptions.assertCanAddProperty();
         Property property = build(command);
         RepositoryOutcomes.absent(properties.read(property.getPropertyId()), "Property", property.getPropertyId());
         return RepositoryOutcomes.created(properties.create(property), "Property", property.getPropertyId());

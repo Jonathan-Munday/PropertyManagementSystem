@@ -43,7 +43,7 @@ export function BrandLockup({
         >
           Portico
         </p>
-        <p className={clsx("mt-1 text-xs", onDark ? "text-white/60" : "text-muted")}>RevDev Solutions</p>
+        <p className={clsx("mt-1 text-xs", onDark ? "text-white/60" : "text-muted")}>Property management</p>
       </div>
     </div>
   );

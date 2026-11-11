@@ -18,3 +18,15 @@ export function grantableRoles(role: string | undefined): OrganisationRole[] {
   if (role === "ADMIN") return ["ADMIN", "PROPERTY_MANAGER", "ACCOUNTANT", "VIEWER"];
   return [];
 }
+
+export function canManageLeases(role: string | undefined) {
+  return role === "OWNER" || role === "ADMIN" || role === "PROPERTY_MANAGER";
+}
+
+export function canViewBilling(role: string | undefined) {
+  return role === "OWNER" || role === "ADMIN";
+}
+
+export function canManageBilling(role: string | undefined) {
+  return role === "OWNER";
+}

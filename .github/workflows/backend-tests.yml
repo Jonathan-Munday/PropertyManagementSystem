@@ -80,6 +80,8 @@ jobs:
               "za.ac.mycput.interfaces.rest.PortfolioPersistenceTest",
               "za.ac.mycput.interfaces.rest.PropertyApiTest",
               "za.ac.mycput.interfaces.rest.AuthorisationApiTest",
+              "za.ac.mycput.interfaces.rest.SubscriptionAuditTest",
+              "za.ac.mycput.infrastructure.persistence.SubscriptionMigrationTest",
           ]
 
           for class_name in classes:

@@ -1,4 +1,6 @@
 import axios from "axios";
+import { resolveApiBase } from "../lib/apiBase.ts";
+import { formatApiError } from "../lib/httpError.ts";
 import { toLeaseRequest } from "../lib/leaseRecord.ts";
 import { supabase } from "../lib/supabase.ts";
 import type {
@@ -16,13 +18,8 @@ import type {
 /**
  * Portfolio routes live under /api. Account routes are /api/v1 and already
  * include the /v1 prefix. A base of http://localhost:8080/api/v1 is accepted
- * and normalised so those paths are not doubled.
+ * and normalised so a lease is posted to /api/lease rather than /api/v1/lease.
  */
-function resolveApiBase(configured: string | undefined) {
-  const raw = (configured?.trim() || "http://localhost:8080/api").replace(/\/+$/, "");
-  return raw.endsWith("/api/v1") ? raw.slice(0, -3) : raw;
-}
-
 export const API_BASE_URL = resolveApiBase(import.meta.env.VITE_API_BASE_URL);
 
 export const api = axios.create({
@@ -82,10 +79,7 @@ export function toErrorMessage(error: unknown) {
   if (axios.isAxiosError(error)) {
     if (error.code === "ECONNABORTED") return "The property API took too long to respond.";
     if (!error.response) return "The property service is unreachable.";
-    const body = asRecord(error.response.data);
-    const message = body ? readString(body, "message") : "";
-    if (message) return message;
-    return `The property API returned status ${error.response.status}.`;
+    return formatApiError(error.response.status, error.response.data);
   }
   return "The change could not be saved.";
 }

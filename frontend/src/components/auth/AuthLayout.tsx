@@ -24,7 +24,6 @@ export function AuthLayout({
             Properties, tenants, leases, rent and maintenance for the organisation you manage.
           </p>
         </div>
-        <p className="text-xs text-white/50">RevDev Solutions</p>
       </aside>
       <div className="grid place-items-center bg-paper px-4 py-10 sm:px-6">
         <div className="w-full max-w-md">

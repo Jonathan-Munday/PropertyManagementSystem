@@ -36,6 +36,12 @@ public class BillingInvoiceJpaEntity {
     @Column(name = "issued_on", nullable = false)
     private LocalDate issuedOn;
 
+    @Column(name = "plan_code", length = 40)
+    private String planCode;
+
+    @Column(name = "provider", length = 40, nullable = false)
+    private String provider;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
@@ -56,6 +62,10 @@ public class BillingInvoiceJpaEntity {
     public void setStatus(String status) { this.status = status; }
     public LocalDate getIssuedOn() { return issuedOn; }
     public void setIssuedOn(LocalDate issuedOn) { this.issuedOn = issuedOn; }
+    public String getPlanCode() { return planCode; }
+    public void setPlanCode(String planCode) { this.planCode = planCode; }
+    public String getProvider() { return provider; }
+    public void setProvider(String provider) { this.provider = provider; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }

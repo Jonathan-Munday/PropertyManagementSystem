@@ -29,7 +29,9 @@ class ApiAuthorisationCatalogTest {
         assertEquals(Permission.MANAGE_TENANTS, catalog.ruleFor("PUT", "/api/tenant/33333333-3333-4333-8333-333333333331").permission());
         assertEquals(Permission.MANAGE_LEASES, catalog.ruleFor("POST", "/api/lease").permission());
         assertEquals(Permission.VIEW_BILLING, catalog.ruleFor("GET", "/api/billing/subscription").permission());
+        assertEquals(Permission.VIEW_BILLING, catalog.ruleFor("GET", "/api/billing/plans").permission());
         assertEquals(Permission.MANAGE_BILLING, catalog.ruleFor("POST", "/api/billing/subscription").permission());
+        assertEquals(Permission.MANAGE_BILLING, catalog.ruleFor("POST", "/api/billing/subscription/cancel").permission());
         assertEquals(Permission.MANAGE_USERS, catalog.ruleFor("POST", "/api/v1/organisations/22222222-2222-4222-8222-222222222222/invitations").permission());
         assertEquals(Permission.DELETE_ORGANISATION, catalog.ruleFor("DELETE", "/api/v1/organisations/22222222-2222-4222-8222-222222222222").permission());
         assertEquals(Permission.VIEW_MEMBERS, catalog.ruleFor("GET", "/api/v1/organisations/22222222-2222-4222-8222-222222222222/members").permission());

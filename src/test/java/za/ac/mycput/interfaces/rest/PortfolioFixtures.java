@@ -22,4 +22,19 @@ final class PortfolioFixtures {
                 on conflict (organisation_id, user_id) do nothing
                 """, UUID.randomUUID(), organisationId, userId, role);
     }
+
+    static void agencyDemo(JdbcTemplate jdbc, UUID organisationId) {
+        Number open = jdbc.queryForObject("""
+                select count(*) from organisation_subscriptions
+                where organisation_id = ? and status in ('TRIALING', 'ACTIVE', 'PAST_DUE', 'DEMO')
+                """, Number.class, organisationId);
+        if (open != null && open.longValue() > 0) {
+            return;
+        }
+        UUID planId = jdbc.queryForObject("select id from subscription_plans where code = 'AGENCY'", UUID.class);
+        jdbc.update("""
+                insert into organisation_subscriptions (id, organisation_id, plan_id, status, provider)
+                values (?, ?, ?, 'DEMO', 'demo')
+                """, UUID.randomUUID(), organisationId, planId);
+    }
 }

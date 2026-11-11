@@ -40,7 +40,7 @@ One modular monolith holds four contexts. They share the process and the databas
 1. **Identity and organisations.** Profiles, memberships, invitations, and roles. `AccountApplicationService` creates a profile from the verified token subject and an `OWNER` membership when that user creates an organisation. It does not insert a Supabase Auth user.
 2. **Property management.** Properties and addresses.
 3. **Tenancy and operations.** Tenants, leases, rent payments, maintenance, managers, agents, vendors, and notifications. A `Payment` is rent collected against a lease.
-4. **SaaS billing.** Subscription plans, organisation subscriptions, software invoices, and billing webhook events. `SubscriptionBillingPort` is the outbound port. The current adapter reports `NOT_CONFIGURED` and does not call Stripe.
+4. **SaaS billing.** Subscription plans, organisation subscriptions, software invoices, and billing webhook events. `SubscriptionBillingPort` is the outbound port. The current adapter reads the stored subscription and does not call a payment provider. Simulated checkout stores `DEMO` records only.
 
 ## Request path
 

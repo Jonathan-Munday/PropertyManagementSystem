@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${PORT:8080}
 
 spring:
   application:
@@ -53,7 +53,13 @@ portico:
       jwk-set-uri: ${SUPABASE_JWKS_URI}
       audience: ${SUPABASE_JWT_AUDIENCE}
     cors:
-      allowed-origins: ${PORTICO_CORS_ORIGINS:http://localhost:5173}
+      allowed-origins: ${PORTICO_CORS_ORIGINS:}
+  billing:
+    payfast:
+      merchant-id: ${PAYFAST_MERCHANT_ID:}
+      merchant-key: ${PAYFAST_MERCHANT_KEY:}
+    paystack:
+      secret-key: ${PAYSTACK_SECRET_KEY:}
   datasource:
     allow-local: ${PORTICO_DATASOURCE_ALLOW_LOCAL:false}
   tenancy:

@@ -18,7 +18,6 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import za.ac.mycput.application.service.AccountApplicationService;
 import za.ac.mycput.domain.service.RolePermissionPolicy;
 
-import java.util.Arrays;
 import java.util.List;
 
 @Configuration
@@ -70,12 +69,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    CorsConfigurationSource corsConfigurationSource(@Value("${portico.security.cors.allowed-origins}") String origins) {
+    CorsConfigurationSource corsConfigurationSource(@Value("${portico.security.cors.allowed-origins:}") String origins) {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.stream(origins.split(","))
-                .map(String::trim)
-                .filter(origin -> !origin.isEmpty())
-                .toList());
+        configuration.setAllowedOrigins(CorsOrigins.parse(origins));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Organisation-Id"));
         configuration.setMaxAge(3600L);

@@ -27,6 +27,8 @@ public interface PropertyJpaRepository extends JpaRepository<PropertyJpaEntity, 
 
     List<PropertyJpaEntity> findByOrganisationIdAndAvailableTrue(UUID organisationId);
 
+    long countByOrganisationId(UUID organisationId);
+
     boolean existsByOrganisationIdAndPropertyId(UUID organisationId, UUID propertyId);
 
     void deleteByOrganisationIdAndPropertyId(UUID organisationId, UUID propertyId);

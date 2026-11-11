@@ -48,7 +48,7 @@ Revocation is not instant. A key that was removed from the JWKS can still verify
 
 Do not disable JWT signing keys and fall back to the shared secret. Tokens from that mode will be rejected.
 
-`application.yml` has no default issuer or JWKS URI. The process does not start until `SUPABASE_JWT_ISSUER`, `SUPABASE_JWKS_URI`, and `SUPABASE_JWT_AUDIENCE` are set. `PORTICO_CORS_ORIGINS` is a comma-separated list of frontend origins. The default is `http://localhost:5173`.
+`application.yml` has no default issuer or JWKS URI. The process does not start until `SUPABASE_JWT_ISSUER`, `SUPABASE_JWKS_URI`, and `SUPABASE_JWT_AUDIENCE` are set. `PORTICO_CORS_ORIGINS` is a comma-separated list of explicit frontend origins. A blank value fails startup. The `local` profile sets `http://localhost:5173` for private development only.
 
 ## What the frontend does
 

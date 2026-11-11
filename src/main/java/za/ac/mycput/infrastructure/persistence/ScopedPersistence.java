@@ -40,6 +40,14 @@ public class ScopedPersistence {
         setConfig("app.current_user_id", userId);
     }
 
+    public void flush() {
+        entityManager.flush();
+    }
+
+    public void refresh(Object entity) {
+        entityManager.refresh(entity);
+    }
+
     public void audit(String action, String entityType, UUID entityId) {
         OrganisationScope scope = OrganisationContext.require();
         AuditLogJpaEntity row = new AuditLogJpaEntity();

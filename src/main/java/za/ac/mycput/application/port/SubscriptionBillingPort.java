@@ -7,4 +7,10 @@ package za.ac.mycput.application.port;
 public interface SubscriptionBillingPort {
 
     SubscriptionStatus currentStatus();
+
+    /**
+     * True only after a verified payment webhook has been implemented.
+     * Stored provider credentials do not make this true.
+     */
+    boolean liveChargesEnabled();
 }

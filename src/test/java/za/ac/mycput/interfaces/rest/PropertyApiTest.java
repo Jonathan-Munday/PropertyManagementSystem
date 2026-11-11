@@ -54,6 +54,7 @@ class PropertyApiTest {
     @BeforeEach
     void membership() {
         PortfolioFixtures.membership(jdbc, USER_ID, ORG_ID, "Portico test");
+        PortfolioFixtures.agencyDemo(jdbc, ORG_ID);
     }
 
     @Test
@@ -86,8 +87,10 @@ class PropertyApiTest {
     void subscriptionBillingStaysSeparateFromRent() throws Exception {
         mockMvc.perform(get("/api/billing/subscription").with(member()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.provider").value("none"))
-                .andExpect(jsonPath("$.status").value("NOT_CONFIGURED"));
+                .andExpect(jsonPath("$.provider").value("demo"))
+                .andExpect(jsonPath("$.status").value("DEMO"))
+                .andExpect(jsonPath("$.liveChargesEnabled").value(false))
+                .andExpect(jsonPath("$.plan.code").value("AGENCY"));
     }
 
     @Test

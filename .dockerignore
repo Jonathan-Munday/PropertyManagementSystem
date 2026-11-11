@@ -1,0 +1,15 @@
+# Build context is the repository root. Secrets and the frontend stay out of the image.
+.git
+.github
+.idea
+.vscode
+.portico
+frontend
+target
+**/target
+**/.env
+**/.env.*
+!**/.env.example
+*.md
+agent-transcripts
+canvases

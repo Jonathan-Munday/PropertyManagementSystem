@@ -1,0 +1,48 @@
+# Installs frontend dependencies, runs the tests, and builds the production bundle.
+# Does not deploy to Vercel and does not read payment or database secrets.
+
+name: Frontend tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frontend-tests:
+    name: Frontend tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Test
+        run: npm test
+
+      - name: Production build
+        run: npm run build
+        env:
+          VITE_DEMO_MODE: "false"
+          VITE_API_BASE_URL: https://api.example.com/api
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_PUBLISHABLE_KEY: public-publishable-key

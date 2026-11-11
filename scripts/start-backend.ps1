@@ -30,6 +30,7 @@ try {
     Require-Env "SUPABASE_JWT_ISSUER"
     Require-Env "SUPABASE_JWKS_URI"
     Require-Env "SUPABASE_JWT_AUDIENCE"
+    Require-Env "PORTICO_CORS_ORIGINS"
 
     if ($env:SUPABASE_JWT_AUDIENCE -ne "authenticated") {
         Write-Error "SUPABASE_JWT_AUDIENCE must be the single word authenticated."
@@ -84,7 +85,7 @@ try {
     Write-Host "SSL required: $sslRequired"
     Write-Host "Database password: present in this process only. It is not printed."
     Write-Host "The local profile is not active."
-    Write-Host "Flyway will validate the applied V1 schema. It will not clean or reset the database."
+    Write-Host "Flyway applies pending migrations. It will not clean or reset the database."
 
     $wrapper = Join-Path $root "mvnw.cmd"
     if (Test-Path $wrapper) {

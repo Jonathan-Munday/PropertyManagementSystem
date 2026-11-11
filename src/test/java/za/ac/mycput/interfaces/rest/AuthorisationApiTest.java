@@ -99,6 +99,8 @@ class AuthorisationApiTest {
         PortfolioFixtures.membership(jdbc, ACCOUNTANT, ORG_A, "Harbour Lettings", "ACCOUNTANT");
         PortfolioFixtures.membership(jdbc, VIEWER, ORG_A, "Harbour Lettings", "VIEWER");
         PortfolioFixtures.membership(jdbc, OWNER_B, ORG_B, "Other Desk", "OWNER");
+        PortfolioFixtures.agencyDemo(jdbc, ORG_A);
+        PortfolioFixtures.agencyDemo(jdbc, ORG_B);
     }
 
     @Test
@@ -185,7 +187,8 @@ class AuthorisationApiTest {
         mockMvc.perform(post("/api/billing/subscription").with(as(OWNER, "owner@example.com"))
                         .contentType("application/json")
                         .content("{}"))
-                .andExpect(status().isMethodNotAllowed());
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("VALIDATION_ERROR"));
 
         mockMvc.perform(post("/api/property").with(as(MANAGER, "manager@example.com"))
                         .contentType("application/json")
@@ -349,6 +352,154 @@ class AuthorisationApiTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    void creatingALeaseRequiresManageLeasesAndTheCallersOrganisation() throws Exception {
+        String propertyId = "33333333-3333-4333-8333-333333333340";
+        String adminPropertyId = "33333333-3333-4333-8333-333333333341";
+        String managerPropertyId = "33333333-3333-4333-8333-333333333342";
+        String tenantId = "33333333-3333-4333-8333-333333333343";
+        mockMvc.perform(post("/api/property").with(as(OWNER, "owner@example.com")).contentType("application/json")
+                        .content(property(propertyId, "Lease Wharf", 8000)))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/property").with(as(OWNER, "owner@example.com")).contentType("application/json")
+                        .content(property(adminPropertyId, "Admin Wharf", 8100)))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/property").with(as(OWNER, "owner@example.com")).contentType("application/json")
+                        .content(property(managerPropertyId, "Manager Wharf", 8200)))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/tenant").with(as(OWNER, "owner@example.com")).contentType("application/json")
+                        .content("""
+                                {"tenantId":"%s","firstName":"Ada","lastName":"Lovelace","email":"ada.lease-role@example.com","phoneNumber":"0210000099"}
+                                """.formatted(tenantId)))
+                .andExpect(status().isCreated());
+
+        mockMvc.perform(post("/api/lease").with(as(VIEWER, "viewer@example.com")).contentType("application/json")
+                        .content("{}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("FORBIDDEN"))
+                .andExpect(jsonPath("$.message").value(containsString("viewer role cannot create or change leases")));
+        mockMvc.perform(post("/api/lease").with(as(ACCOUNTANT, "accounts@example.com")).contentType("application/json")
+                        .content("{}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("FORBIDDEN"))
+                .andExpect(jsonPath("$.message").value(containsString("accountant role cannot create or change leases")));
+        mockMvc.perform(post("/api/lease").with(as(OWNER, "owner@example.com"))
+                        .header("X-Organisation-Id", ORG_B)
+                        .contentType("application/json")
+                        .content(lease("33333333-3333-4333-8333-333333333344", propertyId, tenantId)))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("ORGANISATION_ACCESS"));
+
+        mockMvc.perform(post("/api/lease").with(as(OWNER, "owner@example.com")).contentType("application/json")
+                        .content(lease("33333333-3333-4333-8333-333333333344", propertyId, tenantId)))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/lease").with(as(ADMIN, "admin@example.com")).contentType("application/json")
+                        .content(lease("33333333-3333-4333-8333-333333333345", adminPropertyId, tenantId)))
+                .andExpect(status().isCreated());
+        mockMvc.perform(post("/api/lease").with(as(MANAGER, "manager@example.com")).contentType("application/json")
+                        .content(lease("33333333-3333-4333-8333-333333333346", managerPropertyId, tenantId)))
+                .andExpect(status().isCreated());
+
+        UUID suspended = UUID.randomUUID();
+        PortfolioFixtures.membership(jdbc, suspended, ORG_A, "Harbour Lettings", "OWNER");
+        jdbc.update("update organisation_memberships set status = 'SUSPENDED' where user_id = ?", suspended);
+        mockMvc.perform(post("/api/lease").with(as(suspended, "suspended@example.com")).contentType("application/json")
+                        .content("{}"))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("ORGANISATION_ACCESS"));
+    }
+
+    @Test
+    void demoCheckoutIsNotAPaidSubscriptionAndThePackageCapIsEnforced() throws Exception {
+        UUID founder = UUID.randomUUID();
+        String created = mockMvc.perform(post("/api/v1/organisations").with(as(founder, "billing-owner@example.com"))
+                        .contentType("application/json")
+                        .content("{\"name\":\"Billing Desk\",\"displayName\":\"Billing Owner\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String organisationId = created.replaceAll(".*\"organisationId\":\"([^\"]+)\".*", "$1");
+
+        mockMvc.perform(get("/api/billing/plans").with(as(VIEWER, "viewer@example.com")))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.error").value("FORBIDDEN"));
+        mockMvc.perform(get("/api/billing/plans").with(as(founder, "billing-owner@example.com"))
+                        .header("X-Organisation-Id", organisationId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].code").value("STARTER"))
+                .andExpect(jsonPath("$[0].amount").value(197.0))
+                .andExpect(jsonPath("$[3].code").value("AGENCY"))
+                .andExpect(jsonPath("$[3].amount").value(1979.0));
+
+        mockMvc.perform(post("/api/billing/subscription").with(as(ADMIN, "admin@example.com"))
+                        .contentType("application/json")
+                        .content("{\"planCode\":\"GROWTH\"}"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/api/billing/subscription").with(as(founder, "billing-owner@example.com"))
+                        .header("X-Organisation-Id", organisationId)
+                        .contentType("application/json")
+                        .content("{\"planCode\":\"STARTER\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.provider").value("demo"))
+                .andExpect(jsonPath("$.status").value("DEMO"))
+                .andExpect(jsonPath("$.billingMode").value("DEMO"))
+                .andExpect(jsonPath("$.demoCheckout").value(true))
+                .andExpect(jsonPath("$.liveChargesEnabled").value(false))
+                .andExpect(jsonPath("$.plan.code").value("STARTER"))
+                .andExpect(jsonPath("$.usage.maxProperties").value(5))
+                .andExpect(jsonPath("$.history[0].status").value("DEMO"))
+                .andExpect(jsonPath("$.history[0].detail").value(containsString("No payment was collected")));
+
+        for (int index = 0; index < 5; index++) {
+            mockMvc.perform(post("/api/property").with(as(founder, "billing-owner@example.com"))
+                            .header("X-Organisation-Id", organisationId)
+                            .contentType("application/json")
+                            .content(property(UUID.randomUUID().toString(), "Package Street " + index, 1000)))
+                    .andExpect(status().isCreated());
+        }
+        mockMvc.perform(post("/api/property").with(as(founder, "billing-owner@example.com"))
+                        .header("X-Organisation-Id", organisationId)
+                        .contentType("application/json")
+                        .content(property(UUID.randomUUID().toString(), "Over the cap", 1000)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("DOMAIN_RULE"))
+                .andExpect(jsonPath("$.message").value(containsString("properties")));
+
+        String invited = mockMvc.perform(post("/api/v1/organisations/" + organisationId + "/invitations")
+                        .with(as(founder, "billing-owner@example.com"))
+                        .header("X-Organisation-Id", organisationId)
+                        .contentType("application/json")
+                        .content("{\"email\":\"billing-guest@example.com\",\"role\":\"VIEWER\"}"))
+                .andExpect(status().isCreated())
+                .andReturn().getResponse().getContentAsString();
+        String invitationToken = invited.replaceAll(".*\"token\":\"([^\"]+)\".*", "$1");
+        UUID guest = UUID.randomUUID();
+        mockMvc.perform(post("/api/v1/invitations/accept").with(as(guest, "billing-guest@example.com"))
+                        .contentType("application/json")
+                        .content("{\"token\":\"" + invitationToken + "\"}"))
+                .andExpect(status().isOk());
+        mockMvc.perform(post("/api/v1/organisations/" + organisationId + "/invitations")
+                        .with(as(founder, "billing-owner@example.com"))
+                        .header("X-Organisation-Id", organisationId)
+                        .contentType("application/json")
+                        .content("{\"email\":\"billing-extra@example.com\",\"role\":\"VIEWER\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("DOMAIN_RULE"))
+                .andExpect(jsonPath("$.message").value(containsString("members")));
+
+        mockMvc.perform(post("/api/billing/subscription/cancel").with(as(founder, "billing-owner@example.com"))
+                        .header("X-Organisation-Id", organisationId))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("CANCELED"))
+                .andExpect(jsonPath("$.billingMode").value("CANCELED"));
+        mockMvc.perform(post("/api/property").with(as(founder, "billing-owner@example.com"))
+                        .header("X-Organisation-Id", organisationId)
+                        .contentType("application/json")
+                        .content(property(UUID.randomUUID().toString(), "After cancel", 1000)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value(containsString("canceled")));
+    }
+
     private JwtRequestPostProcessor as(UUID userId, String email) {
         return jwt().jwt(token -> token.subject(userId.toString())
                 .claim("email", email)
@@ -379,5 +530,11 @@ class AuthorisationApiTest {
         return """
                 {"propertyId":"%s","address":"%s","description":"Flat","rentalAmount":%d,"available":true}
                 """.formatted(id, address, rent);
+    }
+
+    private String lease(String leaseId, String propertyId, String tenantId) {
+        return """
+                {"leaseId":"%s","propertyId":"%s","tenantId":"%s","tenantName":"Ada Lovelace","monthlyRent":8000,"startDate":"2026-01-01","endDate":"2027-01-01"}
+                """.formatted(leaseId, propertyId, tenantId);
     }
 }

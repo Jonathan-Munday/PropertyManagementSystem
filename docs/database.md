@@ -6,8 +6,9 @@ Flyway is the only source of the schema. Hibernate validates the mapping and doe
 | --- | --- |
 | `V1__initial_schema.sql` | Creates the organisation-owned schema on an empty database. |
 | `V2__lease_term_dates.sql` | Adds the lease start and end date columns. A lease may store both dates or neither, and the end date cannot be earlier than the start date. |
+| `V3__subscription_packages.sql` | Adds property and member caps to subscription packages, allows a `DEMO` subscription and invoice status, and inserts the four proposed packages. |
 
-Flyway applies pending migrations automatically when the backend starts. These files are the versions in the repository. That does not mean V1 or V2 has already been applied to a live Supabase database. V1 does not insert properties, tenants, users, or memberships, and it does not drop existing tables.
+Flyway applies pending migrations automatically when the backend starts. These files are the versions in the repository. That does not mean V1, V2, or V3 has already been applied to a live Supabase database. V1 does not insert properties, tenants, users, or memberships, and it does not drop existing tables. V3 inserts the four subscription packages only.
 
 ## Connection
 
@@ -22,7 +23,7 @@ SUPABASE_JWKS_URI
 SUPABASE_JWT_AUDIENCE
 ```
 
-Spring Boot reads those names itself. Do not create a backend `.env` file and expect the API to load it. The API listens on port 8080. Flyway applies any pending migration, including V1 and V2, when the backend starts, then Hibernate checks that the tables match the JPA entities. `spring.flyway.clean-disabled` is true, so a normal startup cannot wipe the schema.
+Spring Boot reads those names itself. Do not create a backend `.env` file and expect the API to load it. The API listens on `PORT`, or 8080 when that variable is unset. Flyway applies any pending migration, including V1, V2, and V3, when the backend starts, then Hibernate checks that the tables match the JPA entities. `spring.flyway.clean-disabled` is true, so a normal startup cannot wipe the schema.
 
 Copy the URL, host, port, database name, and user from the Supabase dashboard. Do not invent a pooler hostname. The password stays in the environment of the PowerShell window or the IDE run configuration. The exact Windows steps are in [Run locally](#run-locally).
 
@@ -155,6 +156,6 @@ Two different controls are in force. They are not substitutes for each other.
 
 That design is acceptable for the first deployment: the browser talks to the Java API, and the Data API is closed. Before commercial production, add a non-owner database role that does not have `BYPASSRLS`, grant it only the DML it needs, and add policies that use a transaction-local setting set by the API. Do that in a later migration. Do not weaken the current Java checks to make the Data API writable.
 
-`GET /api/billing/subscription` reads `organisation_subscriptions`. With no open row it returns provider `none` and status `NOT_CONFIGURED`. It does not call a payment provider and it does not read `rent_payments`.
+`GET /api/billing/subscription` reads `organisation_subscriptions`. With no subscription row the API applies the Starter demo cap. V3 backfills that row for organisations that have none. It does not call a payment provider and it does not read `rent_payments`. An invoice that names a subscription must use that subscription's organisation.
 
 Deleting an organisation is restricted by portfolio rows and by `audit_logs`. Memberships and invitations cascade. Audit history is kept, so an organisation that has already recorded an audit row cannot be deleted until that reference is handled in a later, deliberate migration.

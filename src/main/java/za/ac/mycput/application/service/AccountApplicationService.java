@@ -48,6 +48,7 @@ public class AccountApplicationService {
     private final OrganisationInvitationJpaRepository invitations;
     private final ScopedPersistence persistence;
     private final RolePermissionPolicy policy;
+    private final SubscriptionAllowance subscriptions;
     private final SecureRandom random = new SecureRandom();
 
     public AccountApplicationService(UserProfileJpaRepository profiles,
@@ -55,13 +56,15 @@ public class AccountApplicationService {
                                      OrganisationMembershipJpaRepository memberships,
                                      OrganisationInvitationJpaRepository invitations,
                                      ScopedPersistence persistence,
-                                     RolePermissionPolicy policy) {
+                                     RolePermissionPolicy policy,
+                                     SubscriptionAllowance subscriptions) {
         this.profiles = profiles;
         this.organisations = organisations;
         this.memberships = memberships;
         this.invitations = invitations;
         this.persistence = persistence;
         this.policy = policy;
+        this.subscriptions = subscriptions;
     }
 
     @Transactional
@@ -105,6 +108,8 @@ public class AccountApplicationService {
         organisations.save(organisation);
         OrganisationMembershipJpaEntity membership = newMembership(organisation.getId(), actor.userId(), OrganisationRole.OWNER);
         memberships.save(membership);
+        persistence.flush();
+        subscriptions.grantStarterDemo(organisation.getId());
         return new OrganisationMembershipResponse(organisation.getId(), organisation.getName(), membership.getRole(), membership.getStatus());
     }
 
@@ -165,6 +170,7 @@ public class AccountApplicationService {
         if (pending) {
             throw new DuplicateEntityException("Invitation", normalised);
         }
+        subscriptions.assertCanAddMember();
         Instant now = Instant.now();
         OrganisationInvitationJpaEntity invitation = new OrganisationInvitationJpaEntity();
         invitation.setId(UUID.randomUUID());
@@ -204,9 +210,24 @@ public class AccountApplicationService {
         if (!email.equals(invitation.getEmail().toLowerCase(Locale.ROOT))) {
             throw new PermissionDeniedException("This invitation does not match the signed-in account");
         }
+        subscriptions.lockOrganisation(invitation.getOrganisationId());
+        persistence.refresh(invitation);
+        if (!"PENDING".equals(invitation.getStatus())) {
+            throw new PermissionDeniedException("This invitation is no longer valid");
+        }
+        if (invitation.getExpiresAt().isBefore(Instant.now())) {
+            invitation.setStatus("EXPIRED");
+            invitation.setUpdatedAt(Instant.now());
+            invitations.save(invitation);
+            throw new PermissionDeniedException("This invitation has expired");
+        }
+        if (!email.equals(invitation.getEmail().toLowerCase(Locale.ROOT))) {
+            throw new PermissionDeniedException("This invitation does not match the signed-in account");
+        }
         if (memberships.findByOrganisationIdAndUserId(invitation.getOrganisationId(), actor.userId()).isPresent()) {
             throw new DuplicateEntityException("Membership", email);
         }
+        subscriptions.assertCanAcceptMember(invitation.getOrganisationId());
         OrganisationRole role = OrganisationRole.fromStored(invitation.getRole());
         OrganisationMembershipJpaEntity membership = newMembership(invitation.getOrganisationId(), actor.userId(), role);
         memberships.save(membership);

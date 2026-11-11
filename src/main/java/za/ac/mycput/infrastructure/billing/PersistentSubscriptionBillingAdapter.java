@@ -9,6 +9,7 @@ import za.ac.mycput.infrastructure.persistence.entity.OrganisationSubscriptionJp
 import za.ac.mycput.infrastructure.security.OrganisationContext;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * Reads the organisation subscription stored in PostgreSQL.
@@ -17,7 +18,7 @@ import java.util.List;
 @Component
 public class PersistentSubscriptionBillingAdapter implements SubscriptionBillingPort {
 
-    private static final List<String> OPEN = List.of("TRIALING", "ACTIVE", "PAST_DUE");
+    private static final List<String> OPEN = List.of("TRIALING", "ACTIVE", "PAST_DUE", "DEMO");
 
     private final OrganisationSubscriptionJpaRepository subscriptions;
     private final ScopedPersistence persistence;
@@ -34,16 +35,37 @@ public class PersistentSubscriptionBillingAdapter implements SubscriptionBilling
         return subscriptions
                 .findFirstByOrganisationIdAndStatusIn(OrganisationContext.require().organisationId(), OPEN)
                 .map(PersistentSubscriptionBillingAdapter::toStatus)
-                .orElse(new SubscriptionStatus(
-                        "none",
-                        "NOT_CONFIGURED",
-                        "Software subscription billing is not connected. Rent stays on the payment resource."));
+                .orElseGet(() -> canceled(OrganisationContext.require().organisationId()));
+    }
+
+    private SubscriptionStatus canceled(UUID organisationId) {
+        if (subscriptions.existsByOrganisationIdAndStatus(organisationId, "CANCELED")) {
+            return new SubscriptionStatus(
+                    "demo",
+                    "CANCELED",
+                    "This subscription is canceled. Choose a package before adding properties or members.");
+        }
+        return new SubscriptionStatus(
+                "demo",
+                "DEMO",
+                "Starter demo entitlement. No payment was collected and this is not a paid subscription.");
     }
 
     private static SubscriptionStatus toStatus(OrganisationSubscriptionJpaEntity subscription) {
+        if ("DEMO".equals(subscription.getStatus()) || "demo".equalsIgnoreCase(subscription.getProvider())) {
+            return new SubscriptionStatus(
+                    "demo",
+                    "DEMO",
+                    "Demo checkout only. No payment was collected and this is not a paid subscription.");
+        }
         return new SubscriptionStatus(
                 subscription.getProvider(),
                 subscription.getStatus(),
                 "The organisation subscription is stored in PostgreSQL. No provider was called.");
+    }
+
+    @Override
+    public boolean liveChargesEnabled() {
+        return false;
     }
 }

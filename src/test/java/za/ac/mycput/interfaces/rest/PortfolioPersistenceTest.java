@@ -70,6 +70,8 @@ class PortfolioPersistenceTest {
     void memberships() {
         PortfolioFixtures.membership(jdbc, USER_A, ORG_A, "Organisation A");
         PortfolioFixtures.membership(jdbc, USER_B, ORG_B, "Organisation B");
+        PortfolioFixtures.agencyDemo(jdbc, ORG_A);
+        PortfolioFixtures.agencyDemo(jdbc, ORG_B);
     }
 
     @Test
@@ -322,6 +324,16 @@ class PortfolioPersistenceTest {
                 .andExpect(jsonPath("$.tenantName").value("Legacy Tenant"))
                 .andExpect(jsonPath("$.startDate").value(nullValue()))
                 .andExpect(jsonPath("$.endDate").value(nullValue()));
+
+        assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""
+                update leases set start_date = '2026-12-31', end_date = '2026-01-01' where lease_id = ?
+                """, UUID.fromString(leaseId)));
+
+        mockMvc.perform(delete("/api/lease/" + leaseId).with(as(USER_A))).andExpect(status().isNoContent());
+        mockMvc.perform(get("/api/property/" + propertyId).with(as(USER_A)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.available").value(false));
+
         jdbc.update("""
                 update leases set start_date = '2024-01-01', end_date = '2024-12-31' where lease_id = ?
                 """, UUID.fromString(legacyLeaseId));
@@ -331,14 +343,6 @@ class PortfolioPersistenceTest {
         assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""
                 update leases set start_date = null where lease_id = ?
                 """, UUID.fromString(legacyLeaseId)));
-
-        assertThrows(DataIntegrityViolationException.class, () -> jdbc.update("""
-                update leases set start_date = '2026-12-31', end_date = '2026-01-01' where lease_id = ?
-                """, UUID.fromString(leaseId)));
-
-        mockMvc.perform(delete("/api/lease/" + leaseId).with(as(USER_A))).andExpect(status().isNoContent());
-        mockMvc.perform(get("/api/property/" + propertyId).with(as(USER_A)))
-                .andExpect(jsonPath("$.available").value(false));
     }
 
     private JwtRequestPostProcessor as(UUID userId) {

@@ -1,20 +1,21 @@
 import { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { Building2, FileText, LayoutDashboard, UserPlus, Users, Wallet, Wrench } from "lucide-react";
+import { Building2, CreditCard, FileText, LayoutDashboard, LogOut, UserPlus, Users, Wallet, Wrench } from "lucide-react";
 import { clsx } from "clsx";
 import { useAuth } from "../../context/AuthContext.tsx";
-import { roleLabel } from "../../lib/permissions.ts";
+import { canViewBilling, roleLabel } from "../../lib/permissions.ts";
 import { usePortfolio } from "../../context/PortfolioContext.tsx";
 import { BrandLockup } from "../brand/BrandMark.tsx";
 
 const links = [
-  { to: "/", label: "Overview", icon: LayoutDashboard, end: true, countKey: null },
-  { to: "/properties", label: "Properties", icon: Building2, end: false, countKey: "properties" },
-  { to: "/tenants", label: "Tenants", icon: Users, end: false, countKey: "tenants" },
-  { to: "/leases", label: "Leases", icon: FileText, end: false, countKey: "leases" },
-  { to: "/payments", label: "Payments", icon: Wallet, end: false, countKey: "payments" },
-  { to: "/maintenance", label: "Maintenance", icon: Wrench, end: false, countKey: "maintenance" },
-  { to: "/team", label: "Team", icon: UserPlus, end: false, countKey: null },
+  { to: "/", label: "Overview", icon: LayoutDashboard, end: true, countKey: null, billing: false },
+  { to: "/properties", label: "Properties", icon: Building2, end: false, countKey: "properties", billing: false },
+  { to: "/tenants", label: "Tenants", icon: Users, end: false, countKey: "tenants", billing: false },
+  { to: "/leases", label: "Leases", icon: FileText, end: false, countKey: "leases", billing: false },
+  { to: "/payments", label: "Payments", icon: Wallet, end: false, countKey: "payments", billing: false },
+  { to: "/maintenance", label: "Maintenance", icon: Wrench, end: false, countKey: "maintenance", billing: false },
+  { to: "/team", label: "Team", icon: UserPlus, end: false, countKey: null, billing: false },
+  { to: "/subscription", label: "Subscription", icon: CreditCard, end: false, countKey: null, billing: true },
 ] as const;
 
 function useDesktopNav() {
@@ -75,7 +76,7 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
         </div>
         <div className="mx-5 h-px bg-teal/80" />
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4" aria-label="Primary">
-          {links.map((link) => {
+          {links.filter((link) => !link.billing || canViewBilling(organisation?.role)).map((link) => {
             const Icon = link.icon;
             const count = link.countKey ? counts[link.countKey] : null;
             return (
@@ -112,6 +113,19 @@ export function Sidebar({ open, onClose }: { open: boolean; onClose: () => void 
           <p className="mt-0.5 text-xs text-white/55">
             {organisation ? roleLabel(organisation.role) : "No organisation selected"}
           </p>
+        </div>
+        <div className="border-t border-white/10 p-3">
+          <button
+            type="button"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-white/80 hover:bg-white/5 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal focus-visible:ring-offset-2 focus-visible:ring-offset-navy-deep"
+            onClick={() => {
+              onClose();
+              void auth.signOut();
+            }}
+          >
+            <LogOut size={18} aria-hidden="true" />
+            Sign out
+          </button>
         </div>
       </aside>
     </>

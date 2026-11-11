@@ -16,6 +16,7 @@ import { LeasesPage } from "./pages/LeasesPage.tsx";
 import { MaintenancePage } from "./pages/MaintenancePage.tsx";
 import { PaymentsPage } from "./pages/PaymentsPage.tsx";
 import { PropertiesPage } from "./pages/PropertiesPage.tsx";
+import { SubscriptionPage } from "./pages/SubscriptionPage.tsx";
 import { TeamPage } from "./pages/TeamPage.tsx";
 import { TenantsPage } from "./pages/TenantsPage.tsx";
 
@@ -38,6 +39,7 @@ export default function App() {
           <Route path="/payments" element={<PaymentsPage />} />
           <Route path="/maintenance" element={<MaintenancePage />} />
           <Route path="/team" element={<TeamPage />} />
+          <Route path="/subscription" element={<SubscriptionPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

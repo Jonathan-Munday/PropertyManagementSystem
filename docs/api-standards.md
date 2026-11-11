@@ -36,7 +36,10 @@ Collections are singular, matching the names already used by the coursework mode
 | DELETE | `/api/property/{propertyId}` | 204 |
 | GET, POST, PUT, DELETE | `/api/tenant`, `/api/lease`, `/api/payment`, `/api/maintenance`, `/api/manager`, `/api/agent`, `/api/address`, `/api/vendor` | same status codes |
 | GET, POST, DELETE | `/api/notification` | notifications are not updated through this API |
-| GET | `/api/billing/subscription` | 200 subscription status. This is not a rent payment |
+| GET | `/api/billing/plans` | 200 package catalogue. `VIEW_BILLING` |
+| GET | `/api/billing/subscription` | 200 current software subscription. This is not a rent payment |
+| POST | `/api/billing/subscription` | 200 demo package change for an owner. A missing `planCode` is 400. An admin is 403 |
+| POST | `/api/billing/subscription/cancel` | 200 cancels the open subscription. An admin is 403 |
 
 A property body uses `propertyId`, `address`, `description`, `rentalAmount`, and `available`. `isAvailable` is accepted when `available` is absent. The response uses `available`.
 
@@ -71,4 +74,4 @@ Ids are supplied by the client and must be unique. The path id and the body id m
 
 Rent and maintenance costs are stored as `numeric(12,2)`. A negative rental amount, rent payment, or maintenance cost is rejected. Deleting a property that still has a lease, a lease that still has a payment, or a tenant that still has a notification returns 409.
 
-`GET /api/billing/subscription` returns provider `none` and status `NOT_CONFIGURED`. It does not create a charge and it does not read the rent ledger.
+`GET /api/billing/subscription` returns the Starter demo entitlement when the organisation has no subscription row. A new organisation is stored with that Starter demo entitlement. Choosing a package through simulated checkout stores provider `demo`, subscription status `DEMO`, and an invoice status of `DEMO`. It does not create a rent payment, a `PAID` invoice, or an `ACTIVE` subscription. A canceled checkout does not change the package. A non-demo open subscription is not rewritten. Pending invitations count toward the member cap. A canceled subscription blocks new properties and invitations until a package is chosen again. Existing rows over the cap can still be viewed.

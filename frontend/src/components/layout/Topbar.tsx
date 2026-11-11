@@ -15,6 +15,7 @@ const titles: Record<string, string> = {
   "/payments": "Payments",
   "/maintenance": "Maintenance",
   "/team": "Team",
+  "/subscription": "Subscription",
 };
 
 export function Topbar({ onMenu }: { onMenu: () => void }) {

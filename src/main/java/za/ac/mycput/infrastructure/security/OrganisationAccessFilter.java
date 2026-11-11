@@ -100,7 +100,7 @@ public class OrganisationAccessFilter extends OncePerRequestFilter {
             String requested = requestedOrganisation(request, jwt);
             OrganisationScope scope = access.resolve(userId, requested);
             if (!policy.permits(scope.role(), rule.permission())) {
-                write(response, 403, "FORBIDDEN", "You do not have permission to do that");
+                write(response, 403, "FORBIDDEN", AccessDenialMessages.forPermission(rule.permission(), scope.role()));
                 return;
             }
             OrganisationContext.set(scope);

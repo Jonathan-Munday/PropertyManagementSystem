@@ -16,4 +16,9 @@ public class DisabledSubscriptionBillingAdapter implements SubscriptionBillingPo
                 "NOT_CONFIGURED",
                 "Software subscription billing is not connected. Rent stays on the payment resource.");
     }
+
+    @Override
+    public boolean liveChargesEnabled() {
+        return false;
+    }
 }
