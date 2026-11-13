@@ -20,11 +20,15 @@ import type {
  * include the /v1 prefix. A base of http://localhost:8080/api/v1 is accepted
  * and normalised so a lease is posted to /api/lease rather than /api/v1/lease.
  */
-export const API_BASE_URL = resolveApiBase(import.meta.env.VITE_API_BASE_URL);
+const configuredApiBase =
+  import.meta.env.VITE_PORTICO_API_BASE_URL ||
+  import.meta.env.VITE_API_BASE_URL;
+
+export const API_BASE_URL = resolveApiBase(configuredApiBase);
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 20000,
+  timeout: 180000,
   headers: {
     Accept: "application/json",
     "Content-Type": "application/json",
